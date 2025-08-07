@@ -17,7 +17,7 @@ jobs:
           go-version: '1.24.3'
 
       - name: Install linter dependencies
-        run: make .install-linter
+        run: make .bin-deps
 
       - name: Run linter
         run: make linter
