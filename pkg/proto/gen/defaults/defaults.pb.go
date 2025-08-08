@@ -552,7 +552,7 @@ const file_gen_defaults_defaults_proto_rawDesc = "" +
 	"unexported\x12\x1f.google.protobuf.MessageOptions\x18\x95\t \x01(\bR\n" +
 	"unexported:4\n" +
 	"\x05oneof\x12\x1d.google.protobuf.OneofOptions\x18\x93\t \x01(\tR\x05oneof:M\n" +
-	"\x05value\x12\x1d.google.protobuf.FieldOptions\x18\x93\t \x01(\v2\x17.defaults.FieldDefaultsR\x05valueB4Z2github.com/picodata/stroppy/pkg/proto/gen/defaults"
+	"\x05value\x12\x1d.google.protobuf.FieldOptions\x18\x93\t \x01(\v2\x17.defaults.FieldDefaultsR\x05valueB;Z9github.com/stroppy-io/stroppy-core/pkg/proto/gen/defaults"
 
 var (
 	file_gen_defaults_defaults_proto_rawDescOnce sync.Once

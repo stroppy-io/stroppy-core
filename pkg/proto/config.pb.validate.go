@@ -1181,22 +1181,12 @@ func (m *RunConfig) validate(all bool) error {
 
 	var errors []error
 
+	// no validation rules for RunId
+
 	if m.GetSeed() < 0 {
 		err := RunConfigValidationError{
 			field:  "Seed",
 			reason: "value must be greater than or equal to 0",
-		}
-		if !all {
-			return err
-		}
-		errors = append(errors, err)
-	}
-
-	if _, err := url.Parse(m.GetDescriptorPath()); err != nil {
-		err = RunConfigValidationError{
-			field:  "DescriptorPath",
-			reason: "value must be a valid URI",
-			cause:  err,
 		}
 		if !all {
 			return err
@@ -1387,6 +1377,8 @@ func (m *RunConfig) validate(all bool) error {
 		}
 	}
 
+	// no validation rules for Metadata
+
 	if len(errors) > 0 {
 		return RunConfigMultiError(errors)
 	}
@@ -1484,6 +1476,8 @@ func (m *Config) validate(all bool) error {
 	}
 
 	var errors []error
+
+	// no validation rules for Version
 
 	if m.GetRun() == nil {
 		err := ConfigValidationError{
