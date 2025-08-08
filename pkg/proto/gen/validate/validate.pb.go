@@ -3121,7 +3121,7 @@ const file_gen_validate_validate_proto_rawDesc = "" +
 	"\bdisabled\x12\x1f.google.protobuf.MessageOptions\x18\xaf\b \x01(\bR\bdisabled::\n" +
 	"\aignored\x12\x1f.google.protobuf.MessageOptions\x18\xb0\b \x01(\bR\aignored::\n" +
 	"\brequired\x12\x1d.google.protobuf.OneofOptions\x18\xaf\b \x01(\bR\brequired:J\n" +
-	"\x05rules\x12\x1d.google.protobuf.FieldOptions\x18\xaf\b \x01(\v2\x14.validate.FieldRulesR\x05rulesB4Z2github.com/picodata/stroppy/pkg/proto/gen/validate"
+	"\x05rules\x12\x1d.google.protobuf.FieldOptions\x18\xaf\b \x01(\v2\x14.validate.FieldRulesR\x05rulesB;Z9github.com/stroppy-io/stroppy-core/pkg/proto/gen/validate"
 
 var (
 	file_gen_validate_validate_proto_rawDescOnce sync.Once

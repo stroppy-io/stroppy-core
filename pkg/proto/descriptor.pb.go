@@ -7,7 +7,7 @@
 package proto
 
 import (
-	_ "github.com/picodata/stroppy/pkg/proto/gen/validate"
+	_ "github.com/stroppy-io/stroppy-core/pkg/proto/gen/validate"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
@@ -883,7 +883,7 @@ const file_descriptor_proto_rawDesc = "" +
 	"#TX_ISOLATION_LEVEL_READ_UNCOMMITTED\x10\x01\x12%\n" +
 	"!TX_ISOLATION_LEVEL_READ_COMMITTED\x10\x02\x12&\n" +
 	"\"TX_ISOLATION_LEVEL_REPEATABLE_READ\x10\x03\x12#\n" +
-	"\x1fTX_ISOLATION_LEVEL_SERIALIZABLE\x10\x04B'Z%github.com/picodata/stroppy/pkg/protob\x06proto3"
+	"\x1fTX_ISOLATION_LEVEL_SERIALIZABLE\x10\x04B.Z,github.com/stroppy-io/stroppy-core/pkg/protob\x06proto3"
 
 var (
 	file_descriptor_proto_rawDescOnce sync.Once

@@ -7,7 +7,7 @@
 package proto
 
 import (
-	_ "github.com/picodata/stroppy/pkg/proto/gen/validate"
+	_ "github.com/stroppy-io/stroppy-core/pkg/proto/gen/validate"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	durationpb "google.golang.org/protobuf/types/known/durationpb"
@@ -664,10 +664,10 @@ func (x *StepContext) GetStep() *StepDescriptor {
 // RunConfig contains the complete configuration for a benchmark run.
 type RunConfig struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
+	// * Run identifier for reproducible test runs or debugging
+	RunId string `protobuf:"bytes,1,opt,name=run_id,json=runId,proto3" json:"run_id,omitempty"`
 	// * Random seed for reproducible test runs
-	Seed uint64 `protobuf:"varint,1,opt,name=seed,proto3" json:"seed,omitempty"`
-	// * Path to the benchmark descriptor file
-	DescriptorPath string `protobuf:"bytes,2,opt,name=descriptor_path,json=descriptorPath,proto3" json:"descriptor_path,omitempty"`
+	Seed uint64 `protobuf:"varint,2,opt,name=seed,proto3" json:"seed,omitempty"`
 	// * Database driver configuration
 	Driver *DriverConfig `protobuf:"bytes,3,opt,name=driver,proto3" json:"driver,omitempty"`
 	// * Go executor configuration
@@ -677,7 +677,9 @@ type RunConfig struct {
 	// * List of steps to execute in order
 	Steps []*RequestedStep `protobuf:"bytes,6,rep,name=steps,proto3" json:"steps,omitempty"`
 	// * Logging configuration
-	Logger        *LoggerConfig `protobuf:"bytes,7,opt,name=logger,proto3" json:"logger,omitempty"`
+	Logger *LoggerConfig `protobuf:"bytes,7,opt,name=logger,proto3" json:"logger,omitempty"`
+	// * Arbitrary metadata, may be passed to result labels and json output
+	Metadata      map[string]string `protobuf:"bytes,8,rep,name=metadata,proto3" json:"metadata,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -712,18 +714,18 @@ func (*RunConfig) Descriptor() ([]byte, []int) {
 	return file_config_proto_rawDescGZIP(), []int{7}
 }
 
+func (x *RunConfig) GetRunId() string {
+	if x != nil {
+		return x.RunId
+	}
+	return ""
+}
+
 func (x *RunConfig) GetSeed() uint64 {
 	if x != nil {
 		return x.Seed
 	}
 	return 0
-}
-
-func (x *RunConfig) GetDescriptorPath() string {
-	if x != nil {
-		return x.DescriptorPath
-	}
-	return ""
 }
 
 func (x *RunConfig) GetDriver() *DriverConfig {
@@ -761,14 +763,26 @@ func (x *RunConfig) GetLogger() *LoggerConfig {
 	return nil
 }
 
+func (x *RunConfig) GetMetadata() map[string]string {
+	if x != nil {
+		return x.Metadata
+	}
+	return nil
+}
+
 // *
 // Config contains the complete configuration for a benchmark run.
 type Config struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
+	// *
+	// Version of the configuration format e.g. proto files version.
+	// This is used for backward compatibility of configs
+	// and will be set automatically from binary run if not present.
+	Version string `protobuf:"bytes,1,opt,name=version,proto3" json:"version,omitempty"`
 	// * RunConfig contains the complete configuration for a benchmark run.
-	Run *RunConfig `protobuf:"bytes,1,opt,name=run,proto3" json:"run,omitempty"`
+	Run *RunConfig `protobuf:"bytes,2,opt,name=run,proto3" json:"run,omitempty"`
 	// * BenchmarkDescriptor defines a complete benchmark consisting of multiple steps.
-	Benchmark     *BenchmarkDescriptor `protobuf:"bytes,2,opt,name=benchmark,proto3" json:"benchmark,omitempty"`
+	Benchmark     *BenchmarkDescriptor `protobuf:"bytes,3,opt,name=benchmark,proto3" json:"benchmark,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -801,6 +815,13 @@ func (x *Config) ProtoReflect() protoreflect.Message {
 // Deprecated: Use Config.ProtoReflect.Descriptor instead.
 func (*Config) Descriptor() ([]byte, []int) {
 	return file_config_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *Config) GetVersion() string {
+	if x != nil {
+		return x.Version
+	}
+	return ""
 }
 
 func (x *Config) GetRun() *RunConfig {
@@ -885,20 +906,25 @@ const file_config_proto_rawDesc = "" +
 	"\vStepContext\x12*\n" +
 	"\x06config\x18\x01 \x01(\v2\x12.stroppy.RunConfigR\x06config\x12:\n" +
 	"\tbenchmark\x18\x04 \x01(\v2\x1c.stroppy.BenchmarkDescriptorR\tbenchmark\x12+\n" +
-	"\x04step\x18\x05 \x01(\v2\x17.stroppy.StepDescriptorR\x04step\"\xee\x02\n" +
-	"\tRunConfig\x12\x1b\n" +
-	"\x04seed\x18\x01 \x01(\x04B\a\xfaB\x042\x02(\x00R\x04seed\x121\n" +
-	"\x0fdescriptor_path\x18\x02 \x01(\tB\b\xfaB\x05r\x03\x90\x01\x01R\x0edescriptorPath\x127\n" +
+	"\x04step\x18\x05 \x01(\v2\x17.stroppy.StepDescriptorR\x04step\"\xcd\x03\n" +
+	"\tRunConfig\x12\x15\n" +
+	"\x06run_id\x18\x01 \x01(\tR\x05runId\x12\x1b\n" +
+	"\x04seed\x18\x02 \x01(\x04B\a\xfaB\x042\x02(\x00R\x04seed\x127\n" +
 	"\x06driver\x18\x03 \x01(\v2\x15.stroppy.DriverConfigB\b\xfaB\x05\x8a\x01\x02\x10\x01R\x06driver\x124\n" +
 	"\vgo_executor\x18\x04 \x01(\v2\x13.stroppy.GoExecutorR\n" +
 	"goExecutor\x124\n" +
 	"\vk6_executor\x18\x05 \x01(\v2\x13.stroppy.K6ExecutorR\n" +
 	"k6Executor\x12=\n" +
 	"\x05steps\x18\x06 \x03(\v2\x16.stroppy.RequestedStepB\x0f\xfaB\f\x92\x01\t\b\x01\"\x05\x8a\x01\x02\x10\x01R\x05steps\x12-\n" +
-	"\x06logger\x18\a \x01(\v2\x15.stroppy.LoggerConfigR\x06logger\"~\n" +
-	"\x06Config\x12.\n" +
-	"\x03run\x18\x01 \x01(\v2\x12.stroppy.RunConfigB\b\xfaB\x05\x8a\x01\x02\x10\x01R\x03run\x12D\n" +
-	"\tbenchmark\x18\x02 \x01(\v2\x1c.stroppy.BenchmarkDescriptorB\b\xfaB\x05\x8a\x01\x02\x10\x01R\tbenchmarkB'Z%github.com/picodata/stroppy/pkg/protob\x06proto3"
+	"\x06logger\x18\a \x01(\v2\x15.stroppy.LoggerConfigR\x06logger\x12<\n" +
+	"\bmetadata\x18\b \x03(\v2 .stroppy.RunConfig.MetadataEntryR\bmetadata\x1a;\n" +
+	"\rMetadataEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x98\x01\n" +
+	"\x06Config\x12\x18\n" +
+	"\aversion\x18\x01 \x01(\tR\aversion\x12.\n" +
+	"\x03run\x18\x02 \x01(\v2\x12.stroppy.RunConfigB\b\xfaB\x05\x8a\x01\x02\x10\x01R\x03run\x12D\n" +
+	"\tbenchmark\x18\x03 \x01(\v2\x1c.stroppy.BenchmarkDescriptorB\b\xfaB\x05\x8a\x01\x02\x10\x01R\tbenchmarkB.Z,github.com/stroppy-io/stroppy-core/pkg/protob\x06proto3"
 
 var (
 	file_config_proto_rawDescOnce sync.Once
@@ -913,7 +939,7 @@ func file_config_proto_rawDescGZIP() []byte {
 }
 
 var file_config_proto_enumTypes = make([]protoimpl.EnumInfo, 3)
-var file_config_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
+var file_config_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
 var file_config_proto_goTypes = []any{
 	(RequestedStep_ExecutorType)(0), // 0: stroppy.RequestedStep.ExecutorType
 	(LoggerConfig_LogLevel)(0),      // 1: stroppy.LoggerConfig.LogLevel
@@ -927,34 +953,36 @@ var file_config_proto_goTypes = []any{
 	(*StepContext)(nil),             // 9: stroppy.StepContext
 	(*RunConfig)(nil),               // 10: stroppy.RunConfig
 	(*Config)(nil),                  // 11: stroppy.Config
-	(*durationpb.Duration)(nil),     // 12: google.protobuf.Duration
-	(*Value_Struct)(nil),            // 13: stroppy.Value.Struct
-	(*BenchmarkDescriptor)(nil),     // 14: stroppy.BenchmarkDescriptor
-	(*StepDescriptor)(nil),          // 15: stroppy.StepDescriptor
+	nil,                             // 12: stroppy.RunConfig.MetadataEntry
+	(*durationpb.Duration)(nil),     // 13: google.protobuf.Duration
+	(*Value_Struct)(nil),            // 14: stroppy.Value.Struct
+	(*BenchmarkDescriptor)(nil),     // 15: stroppy.BenchmarkDescriptor
+	(*StepDescriptor)(nil),          // 16: stroppy.StepDescriptor
 }
 var file_config_proto_depIdxs = []int32{
-	12, // 0: stroppy.K6Executor.k6_setup_timeout:type_name -> google.protobuf.Duration
-	12, // 1: stroppy.K6Executor.k6_duration:type_name -> google.protobuf.Duration
+	13, // 0: stroppy.K6Executor.k6_setup_timeout:type_name -> google.protobuf.Duration
+	13, // 1: stroppy.K6Executor.k6_duration:type_name -> google.protobuf.Duration
 	3,  // 2: stroppy.K6Executor.otlp_export:type_name -> stroppy.OtlpExport
-	13, // 3: stroppy.DriverConfig.db_specific:type_name -> stroppy.Value.Struct
+	14, // 3: stroppy.DriverConfig.db_specific:type_name -> stroppy.Value.Struct
 	0,  // 4: stroppy.RequestedStep.executor:type_name -> stroppy.RequestedStep.ExecutorType
 	1,  // 5: stroppy.LoggerConfig.log_level:type_name -> stroppy.LoggerConfig.LogLevel
 	2,  // 6: stroppy.LoggerConfig.log_mode:type_name -> stroppy.LoggerConfig.LogMode
 	10, // 7: stroppy.StepContext.config:type_name -> stroppy.RunConfig
-	14, // 8: stroppy.StepContext.benchmark:type_name -> stroppy.BenchmarkDescriptor
-	15, // 9: stroppy.StepContext.step:type_name -> stroppy.StepDescriptor
+	15, // 8: stroppy.StepContext.benchmark:type_name -> stroppy.BenchmarkDescriptor
+	16, // 9: stroppy.StepContext.step:type_name -> stroppy.StepDescriptor
 	6,  // 10: stroppy.RunConfig.driver:type_name -> stroppy.DriverConfig
 	4,  // 11: stroppy.RunConfig.go_executor:type_name -> stroppy.GoExecutor
 	5,  // 12: stroppy.RunConfig.k6_executor:type_name -> stroppy.K6Executor
 	7,  // 13: stroppy.RunConfig.steps:type_name -> stroppy.RequestedStep
 	8,  // 14: stroppy.RunConfig.logger:type_name -> stroppy.LoggerConfig
-	10, // 15: stroppy.Config.run:type_name -> stroppy.RunConfig
-	14, // 16: stroppy.Config.benchmark:type_name -> stroppy.BenchmarkDescriptor
-	17, // [17:17] is the sub-list for method output_type
-	17, // [17:17] is the sub-list for method input_type
-	17, // [17:17] is the sub-list for extension type_name
-	17, // [17:17] is the sub-list for extension extendee
-	0,  // [0:17] is the sub-list for field type_name
+	12, // 15: stroppy.RunConfig.metadata:type_name -> stroppy.RunConfig.MetadataEntry
+	10, // 16: stroppy.Config.run:type_name -> stroppy.RunConfig
+	15, // 17: stroppy.Config.benchmark:type_name -> stroppy.BenchmarkDescriptor
+	18, // [18:18] is the sub-list for method output_type
+	18, // [18:18] is the sub-list for method input_type
+	18, // [18:18] is the sub-list for extension type_name
+	18, // [18:18] is the sub-list for extension extendee
+	0,  // [0:18] is the sub-list for field type_name
 }
 
 func init() { file_config_proto_init() }
@@ -975,7 +1003,7 @@ func file_config_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_config_proto_rawDesc), len(file_config_proto_rawDesc)),
 			NumEnums:      3,
-			NumMessages:   9,
+			NumMessages:   10,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

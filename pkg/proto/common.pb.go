@@ -7,7 +7,7 @@
 package proto
 
 import (
-	_ "github.com/picodata/stroppy/pkg/proto/gen/validate"
+	_ "github.com/stroppy-io/stroppy-core/pkg/proto/gen/validate"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
@@ -2740,7 +2740,7 @@ const file_common_proto_rawDesc = "" +
 	"\x04type\x12\x03\xf8B\x01B\x0f\n" +
 	"\r_distributionB\x12\n" +
 	"\x10_null_percentageB\t\n" +
-	"\a_uniqueB'Z%github.com/picodata/stroppy/pkg/protob\x06proto3"
+	"\a_uniqueB.Z,github.com/stroppy-io/stroppy-core/pkg/protob\x06proto3"
 
 var (
 	file_common_proto_rawDescOnce sync.Once

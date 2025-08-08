@@ -203,7 +203,7 @@ const file_plugins_proto_rawDesc = "" +
 	"Initialize\x12\x14.stroppy.StepContext\x1a\x16.google.protobuf.Empty\x12H\n" +
 	"\fBuildQueries\x12\x1c.stroppy.BuildQueriesContext\x1a\x1a.stroppy.DriverQueriesList\x128\n" +
 	"\bRunQuery\x12\x14.stroppy.DriverQuery\x1a\x16.google.protobuf.Empty\x12:\n" +
-	"\bTeardown\x12\x16.google.protobuf.Empty\x1a\x16.google.protobuf.EmptyB'Z%github.com/picodata/stroppy/pkg/protob\x06proto3"
+	"\bTeardown\x12\x16.google.protobuf.Empty\x1a\x16.google.protobuf.EmptyB.Z,github.com/stroppy-io/stroppy-core/pkg/protob\x06proto3"
 
 var (
 	file_plugins_proto_rawDescOnce sync.Once
