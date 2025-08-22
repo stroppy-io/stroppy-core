@@ -20,10 +20,11 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	DriverPlugin_Initialize_FullMethodName   = "/stroppy.DriverPlugin/Initialize"
-	DriverPlugin_BuildQueries_FullMethodName = "/stroppy.DriverPlugin/BuildQueries"
-	DriverPlugin_RunQuery_FullMethodName     = "/stroppy.DriverPlugin/RunQuery"
-	DriverPlugin_Teardown_FullMethodName     = "/stroppy.DriverPlugin/Teardown"
+	DriverPlugin_Initialize_FullMethodName                      = "/stroppy.DriverPlugin/Initialize"
+	DriverPlugin_BuildTransactionsFromUnit_FullMethodName       = "/stroppy.DriverPlugin/BuildTransactionsFromUnit"
+	DriverPlugin_BuildTransactionsFromUnitStream_FullMethodName = "/stroppy.DriverPlugin/BuildTransactionsFromUnitStream"
+	DriverPlugin_RunTransaction_FullMethodName                  = "/stroppy.DriverPlugin/RunTransaction"
+	DriverPlugin_Teardown_FullMethodName                        = "/stroppy.DriverPlugin/Teardown"
 )
 
 // DriverPluginClient is the client API for DriverPlugin service.
@@ -33,9 +34,29 @@ const (
 // *
 // DriverPlugin defines the gRPC service that database driver plugins must implement.
 type DriverPluginClient interface {
+	// *
+	// Initialize is called once before the benchmark starts.
+	// Used to initialize resources of DriverPlugin, such as database connections.
 	Initialize(ctx context.Context, in *StepContext, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	BuildQueries(ctx context.Context, in *BuildQueriesContext, opts ...grpc.CallOption) (*DriverQueriesList, error)
-	RunQuery(ctx context.Context, in *DriverQuery, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// *
+	// BuildTransactionsFromUnit is called once for each StepUnitDescriptor in a step.
+	// Result is a list of transactions with queries with parameters inside.
+	BuildTransactionsFromUnit(ctx context.Context, in *UnitBuildContext, opts ...grpc.CallOption) (*DriverTransactionList, error)
+	// *
+	// BuildTransactionsFromUnitStream is the same as BuildTransactionsFromUnit,
+	// but returns a stream of transactions instead of a list.
+	// It is useful for drivers that support streaming transactions.
+	// Also, with streaming, we can't reduce RAM usage when building and running transactions.
+	// The result is a stream of transactions with queries with parameters inside.
+	BuildTransactionsFromUnitStream(ctx context.Context, in *UnitBuildContext, opts ...grpc.CallOption) (grpc.ServerStreamingClient[DriverTransaction], error)
+	// *
+	// RunTransaction is called once for each built transaction.
+	// The driver must implement the transactional context of operations.
+	// If the transaction has a single query, the driver may ignore transactional wrapping and run the query directly.
+	RunTransaction(ctx context.Context, in *DriverTransaction, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// *
+	// Teardown is called once after the benchmark ends.
+	// Needs to clean up resources.
 	Teardown(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
@@ -57,20 +78,39 @@ func (c *driverPluginClient) Initialize(ctx context.Context, in *StepContext, op
 	return out, nil
 }
 
-func (c *driverPluginClient) BuildQueries(ctx context.Context, in *BuildQueriesContext, opts ...grpc.CallOption) (*DriverQueriesList, error) {
+func (c *driverPluginClient) BuildTransactionsFromUnit(ctx context.Context, in *UnitBuildContext, opts ...grpc.CallOption) (*DriverTransactionList, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(DriverQueriesList)
-	err := c.cc.Invoke(ctx, DriverPlugin_BuildQueries_FullMethodName, in, out, cOpts...)
+	out := new(DriverTransactionList)
+	err := c.cc.Invoke(ctx, DriverPlugin_BuildTransactionsFromUnit_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *driverPluginClient) RunQuery(ctx context.Context, in *DriverQuery, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (c *driverPluginClient) BuildTransactionsFromUnitStream(ctx context.Context, in *UnitBuildContext, opts ...grpc.CallOption) (grpc.ServerStreamingClient[DriverTransaction], error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	stream, err := c.cc.NewStream(ctx, &DriverPlugin_ServiceDesc.Streams[0], DriverPlugin_BuildTransactionsFromUnitStream_FullMethodName, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &grpc.GenericClientStream[UnitBuildContext, DriverTransaction]{ClientStream: stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type DriverPlugin_BuildTransactionsFromUnitStreamClient = grpc.ServerStreamingClient[DriverTransaction]
+
+func (c *driverPluginClient) RunTransaction(ctx context.Context, in *DriverTransaction, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, DriverPlugin_RunQuery_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, DriverPlugin_RunTransaction_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -94,9 +134,29 @@ func (c *driverPluginClient) Teardown(ctx context.Context, in *emptypb.Empty, op
 // *
 // DriverPlugin defines the gRPC service that database driver plugins must implement.
 type DriverPluginServer interface {
+	// *
+	// Initialize is called once before the benchmark starts.
+	// Used to initialize resources of DriverPlugin, such as database connections.
 	Initialize(context.Context, *StepContext) (*emptypb.Empty, error)
-	BuildQueries(context.Context, *BuildQueriesContext) (*DriverQueriesList, error)
-	RunQuery(context.Context, *DriverQuery) (*emptypb.Empty, error)
+	// *
+	// BuildTransactionsFromUnit is called once for each StepUnitDescriptor in a step.
+	// Result is a list of transactions with queries with parameters inside.
+	BuildTransactionsFromUnit(context.Context, *UnitBuildContext) (*DriverTransactionList, error)
+	// *
+	// BuildTransactionsFromUnitStream is the same as BuildTransactionsFromUnit,
+	// but returns a stream of transactions instead of a list.
+	// It is useful for drivers that support streaming transactions.
+	// Also, with streaming, we can't reduce RAM usage when building and running transactions.
+	// The result is a stream of transactions with queries with parameters inside.
+	BuildTransactionsFromUnitStream(*UnitBuildContext, grpc.ServerStreamingServer[DriverTransaction]) error
+	// *
+	// RunTransaction is called once for each built transaction.
+	// The driver must implement the transactional context of operations.
+	// If the transaction has a single query, the driver may ignore transactional wrapping and run the query directly.
+	RunTransaction(context.Context, *DriverTransaction) (*emptypb.Empty, error)
+	// *
+	// Teardown is called once after the benchmark ends.
+	// Needs to clean up resources.
 	Teardown(context.Context, *emptypb.Empty) (*emptypb.Empty, error)
 	mustEmbedUnimplementedDriverPluginServer()
 }
@@ -111,11 +171,14 @@ type UnimplementedDriverPluginServer struct{}
 func (UnimplementedDriverPluginServer) Initialize(context.Context, *StepContext) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Initialize not implemented")
 }
-func (UnimplementedDriverPluginServer) BuildQueries(context.Context, *BuildQueriesContext) (*DriverQueriesList, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method BuildQueries not implemented")
+func (UnimplementedDriverPluginServer) BuildTransactionsFromUnit(context.Context, *UnitBuildContext) (*DriverTransactionList, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method BuildTransactionsFromUnit not implemented")
 }
-func (UnimplementedDriverPluginServer) RunQuery(context.Context, *DriverQuery) (*emptypb.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method RunQuery not implemented")
+func (UnimplementedDriverPluginServer) BuildTransactionsFromUnitStream(*UnitBuildContext, grpc.ServerStreamingServer[DriverTransaction]) error {
+	return status.Errorf(codes.Unimplemented, "method BuildTransactionsFromUnitStream not implemented")
+}
+func (UnimplementedDriverPluginServer) RunTransaction(context.Context, *DriverTransaction) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RunTransaction not implemented")
 }
 func (UnimplementedDriverPluginServer) Teardown(context.Context, *emptypb.Empty) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Teardown not implemented")
@@ -159,38 +222,49 @@ func _DriverPlugin_Initialize_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
-func _DriverPlugin_BuildQueries_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(BuildQueriesContext)
+func _DriverPlugin_BuildTransactionsFromUnit_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UnitBuildContext)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(DriverPluginServer).BuildQueries(ctx, in)
+		return srv.(DriverPluginServer).BuildTransactionsFromUnit(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: DriverPlugin_BuildQueries_FullMethodName,
+		FullMethod: DriverPlugin_BuildTransactionsFromUnit_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(DriverPluginServer).BuildQueries(ctx, req.(*BuildQueriesContext))
+		return srv.(DriverPluginServer).BuildTransactionsFromUnit(ctx, req.(*UnitBuildContext))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _DriverPlugin_RunQuery_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(DriverQuery)
+func _DriverPlugin_BuildTransactionsFromUnitStream_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(UnitBuildContext)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(DriverPluginServer).BuildTransactionsFromUnitStream(m, &grpc.GenericServerStream[UnitBuildContext, DriverTransaction]{ServerStream: stream})
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type DriverPlugin_BuildTransactionsFromUnitStreamServer = grpc.ServerStreamingServer[DriverTransaction]
+
+func _DriverPlugin_RunTransaction_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DriverTransaction)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(DriverPluginServer).RunQuery(ctx, in)
+		return srv.(DriverPluginServer).RunTransaction(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: DriverPlugin_RunQuery_FullMethodName,
+		FullMethod: DriverPlugin_RunTransaction_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(DriverPluginServer).RunQuery(ctx, req.(*DriverQuery))
+		return srv.(DriverPluginServer).RunTransaction(ctx, req.(*DriverTransaction))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -225,16 +299,348 @@ var DriverPlugin_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _DriverPlugin_Initialize_Handler,
 		},
 		{
-			MethodName: "BuildQueries",
-			Handler:    _DriverPlugin_BuildQueries_Handler,
+			MethodName: "BuildTransactionsFromUnit",
+			Handler:    _DriverPlugin_BuildTransactionsFromUnit_Handler,
 		},
 		{
-			MethodName: "RunQuery",
-			Handler:    _DriverPlugin_RunQuery_Handler,
+			MethodName: "RunTransaction",
+			Handler:    _DriverPlugin_RunTransaction_Handler,
 		},
 		{
 			MethodName: "Teardown",
 			Handler:    _DriverPlugin_Teardown_Handler,
+		},
+	},
+	Streams: []grpc.StreamDesc{
+		{
+			StreamName:    "BuildTransactionsFromUnitStream",
+			Handler:       _DriverPlugin_BuildTransactionsFromUnitStream_Handler,
+			ServerStreams: true,
+		},
+	},
+	Metadata: "plugins.proto",
+}
+
+const (
+	SidecarPlugin_Initialize_FullMethodName       = "/stroppy.SidecarPlugin/Initialize"
+	SidecarPlugin_OnStepStart_FullMethodName      = "/stroppy.SidecarPlugin/OnStepStart"
+	SidecarPlugin_OnStepQueryBuild_FullMethodName = "/stroppy.SidecarPlugin/OnStepQueryBuild"
+	SidecarPlugin_OnStepQueryRun_FullMethodName   = "/stroppy.SidecarPlugin/OnStepQueryRun"
+	SidecarPlugin_OnStepEnd_FullMethodName        = "/stroppy.SidecarPlugin/OnStepEnd"
+	SidecarPlugin_Teardown_FullMethodName         = "/stroppy.SidecarPlugin/Teardown"
+)
+
+// SidecarPluginClient is the client API for SidecarPlugin service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+//
+// *
+// SidecarPlugin defines the gRPC service that sidecar plugins must implement.
+type SidecarPluginClient interface {
+	// *
+	// Initialize is called once before the benchmark starts.
+	// Used to initialize resources of SidecarPlugin.
+	Initialize(ctx context.Context, in *StepContext, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// *
+	// OnStepStart is called once before each step starts.
+	OnStepStart(ctx context.Context, in *StepContext, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// *
+	// OnStepQuery is called after driver BuildQueries is called.
+	OnStepQueryBuild(ctx context.Context, in *OnStepQueryBuildEvent, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// *
+	// OnStepQueryRun is called after driver RunQuery is called.
+	OnStepQueryRun(ctx context.Context, in *OnStepQueryRunEvent, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// *
+	// OnStepEnd is called once after each step ends.
+	OnStepEnd(ctx context.Context, in *StepContext, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// *
+	// Teardown is called once after the benchmark ends.
+	// Used to clean up resources.
+	Teardown(ctx context.Context, in *StepContext, opts ...grpc.CallOption) (*emptypb.Empty, error)
+}
+
+type sidecarPluginClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewSidecarPluginClient(cc grpc.ClientConnInterface) SidecarPluginClient {
+	return &sidecarPluginClient{cc}
+}
+
+func (c *sidecarPluginClient) Initialize(ctx context.Context, in *StepContext, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, SidecarPlugin_Initialize_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *sidecarPluginClient) OnStepStart(ctx context.Context, in *StepContext, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, SidecarPlugin_OnStepStart_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *sidecarPluginClient) OnStepQueryBuild(ctx context.Context, in *OnStepQueryBuildEvent, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, SidecarPlugin_OnStepQueryBuild_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *sidecarPluginClient) OnStepQueryRun(ctx context.Context, in *OnStepQueryRunEvent, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, SidecarPlugin_OnStepQueryRun_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *sidecarPluginClient) OnStepEnd(ctx context.Context, in *StepContext, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, SidecarPlugin_OnStepEnd_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *sidecarPluginClient) Teardown(ctx context.Context, in *StepContext, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, SidecarPlugin_Teardown_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// SidecarPluginServer is the server API for SidecarPlugin service.
+// All implementations must embed UnimplementedSidecarPluginServer
+// for forward compatibility.
+//
+// *
+// SidecarPlugin defines the gRPC service that sidecar plugins must implement.
+type SidecarPluginServer interface {
+	// *
+	// Initialize is called once before the benchmark starts.
+	// Used to initialize resources of SidecarPlugin.
+	Initialize(context.Context, *StepContext) (*emptypb.Empty, error)
+	// *
+	// OnStepStart is called once before each step starts.
+	OnStepStart(context.Context, *StepContext) (*emptypb.Empty, error)
+	// *
+	// OnStepQuery is called after driver BuildQueries is called.
+	OnStepQueryBuild(context.Context, *OnStepQueryBuildEvent) (*emptypb.Empty, error)
+	// *
+	// OnStepQueryRun is called after driver RunQuery is called.
+	OnStepQueryRun(context.Context, *OnStepQueryRunEvent) (*emptypb.Empty, error)
+	// *
+	// OnStepEnd is called once after each step ends.
+	OnStepEnd(context.Context, *StepContext) (*emptypb.Empty, error)
+	// *
+	// Teardown is called once after the benchmark ends.
+	// Used to clean up resources.
+	Teardown(context.Context, *StepContext) (*emptypb.Empty, error)
+	mustEmbedUnimplementedSidecarPluginServer()
+}
+
+// UnimplementedSidecarPluginServer must be embedded to have
+// forward compatible implementations.
+//
+// NOTE: this should be embedded by value instead of pointer to avoid a nil
+// pointer dereference when methods are called.
+type UnimplementedSidecarPluginServer struct{}
+
+func (UnimplementedSidecarPluginServer) Initialize(context.Context, *StepContext) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Initialize not implemented")
+}
+func (UnimplementedSidecarPluginServer) OnStepStart(context.Context, *StepContext) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method OnStepStart not implemented")
+}
+func (UnimplementedSidecarPluginServer) OnStepQueryBuild(context.Context, *OnStepQueryBuildEvent) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method OnStepQueryBuild not implemented")
+}
+func (UnimplementedSidecarPluginServer) OnStepQueryRun(context.Context, *OnStepQueryRunEvent) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method OnStepQueryRun not implemented")
+}
+func (UnimplementedSidecarPluginServer) OnStepEnd(context.Context, *StepContext) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method OnStepEnd not implemented")
+}
+func (UnimplementedSidecarPluginServer) Teardown(context.Context, *StepContext) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Teardown not implemented")
+}
+func (UnimplementedSidecarPluginServer) mustEmbedUnimplementedSidecarPluginServer() {}
+func (UnimplementedSidecarPluginServer) testEmbeddedByValue()                       {}
+
+// UnsafeSidecarPluginServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to SidecarPluginServer will
+// result in compilation errors.
+type UnsafeSidecarPluginServer interface {
+	mustEmbedUnimplementedSidecarPluginServer()
+}
+
+func RegisterSidecarPluginServer(s grpc.ServiceRegistrar, srv SidecarPluginServer) {
+	// If the following call pancis, it indicates UnimplementedSidecarPluginServer was
+	// embedded by pointer and is nil.  This will cause panics if an
+	// unimplemented method is ever invoked, so we test this at initialization
+	// time to prevent it from happening at runtime later due to I/O.
+	if t, ok := srv.(interface{ testEmbeddedByValue() }); ok {
+		t.testEmbeddedByValue()
+	}
+	s.RegisterService(&SidecarPlugin_ServiceDesc, srv)
+}
+
+func _SidecarPlugin_Initialize_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(StepContext)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SidecarPluginServer).Initialize(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: SidecarPlugin_Initialize_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SidecarPluginServer).Initialize(ctx, req.(*StepContext))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _SidecarPlugin_OnStepStart_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(StepContext)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SidecarPluginServer).OnStepStart(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: SidecarPlugin_OnStepStart_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SidecarPluginServer).OnStepStart(ctx, req.(*StepContext))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _SidecarPlugin_OnStepQueryBuild_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(OnStepQueryBuildEvent)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SidecarPluginServer).OnStepQueryBuild(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: SidecarPlugin_OnStepQueryBuild_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SidecarPluginServer).OnStepQueryBuild(ctx, req.(*OnStepQueryBuildEvent))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _SidecarPlugin_OnStepQueryRun_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(OnStepQueryRunEvent)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SidecarPluginServer).OnStepQueryRun(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: SidecarPlugin_OnStepQueryRun_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SidecarPluginServer).OnStepQueryRun(ctx, req.(*OnStepQueryRunEvent))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _SidecarPlugin_OnStepEnd_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(StepContext)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SidecarPluginServer).OnStepEnd(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: SidecarPlugin_OnStepEnd_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SidecarPluginServer).OnStepEnd(ctx, req.(*StepContext))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _SidecarPlugin_Teardown_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(StepContext)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SidecarPluginServer).Teardown(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: SidecarPlugin_Teardown_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SidecarPluginServer).Teardown(ctx, req.(*StepContext))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// SidecarPlugin_ServiceDesc is the grpc.ServiceDesc for SidecarPlugin service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var SidecarPlugin_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "stroppy.SidecarPlugin",
+	HandlerType: (*SidecarPluginServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "Initialize",
+			Handler:    _SidecarPlugin_Initialize_Handler,
+		},
+		{
+			MethodName: "OnStepStart",
+			Handler:    _SidecarPlugin_OnStepStart_Handler,
+		},
+		{
+			MethodName: "OnStepQueryBuild",
+			Handler:    _SidecarPlugin_OnStepQueryBuild_Handler,
+		},
+		{
+			MethodName: "OnStepQueryRun",
+			Handler:    _SidecarPlugin_OnStepQueryRun_Handler,
+		},
+		{
+			MethodName: "OnStepEnd",
+			Handler:    _SidecarPlugin_OnStepEnd_Handler,
+		},
+		{
+			MethodName: "Teardown",
+			Handler:    _SidecarPlugin_Teardown_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

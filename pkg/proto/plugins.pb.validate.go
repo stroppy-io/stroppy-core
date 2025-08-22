@@ -35,22 +35,22 @@ var (
 	_ = sort.Sort
 )
 
-// Validate checks the field values on BuildQueriesContext with the rules
-// defined in the proto definition for this message. If any rules are
-// violated, the first error encountered is returned, or nil if there are no violations.
-func (m *BuildQueriesContext) Validate() error {
+// Validate checks the field values on UnitBuildContext with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// first error encountered is returned, or nil if there are no violations.
+func (m *UnitBuildContext) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on BuildQueriesContext with the rules
+// ValidateAll checks the field values on UnitBuildContext with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the result is a list of violation errors wrapped in
-// BuildQueriesContextMultiError, or nil if none found.
-func (m *BuildQueriesContext) ValidateAll() error {
+// UnitBuildContextMultiError, or nil if none found.
+func (m *UnitBuildContext) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *BuildQueriesContext) validate(all bool) error {
+func (m *UnitBuildContext) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -61,7 +61,7 @@ func (m *BuildQueriesContext) validate(all bool) error {
 		switch v := interface{}(m.GetContext()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, BuildQueriesContextValidationError{
+				errors = append(errors, UnitBuildContextValidationError{
 					field:  "Context",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -69,7 +69,7 @@ func (m *BuildQueriesContext) validate(all bool) error {
 			}
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
-				errors = append(errors, BuildQueriesContextValidationError{
+				errors = append(errors, UnitBuildContextValidationError{
 					field:  "Context",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -78,7 +78,7 @@ func (m *BuildQueriesContext) validate(all bool) error {
 		}
 	} else if v, ok := interface{}(m.GetContext()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
-			return BuildQueriesContextValidationError{
+			return UnitBuildContextValidationError{
 				field:  "Context",
 				reason: "embedded message failed validation",
 				cause:  err,
@@ -87,28 +87,28 @@ func (m *BuildQueriesContext) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetQuery()).(type) {
+		switch v := interface{}(m.GetUnit()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, BuildQueriesContextValidationError{
-					field:  "Query",
+				errors = append(errors, UnitBuildContextValidationError{
+					field:  "Unit",
 					reason: "embedded message failed validation",
 					cause:  err,
 				})
 			}
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
-				errors = append(errors, BuildQueriesContextValidationError{
-					field:  "Query",
+				errors = append(errors, UnitBuildContextValidationError{
+					field:  "Unit",
 					reason: "embedded message failed validation",
 					cause:  err,
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetQuery()).(interface{ Validate() error }); ok {
+	} else if v, ok := interface{}(m.GetUnit()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
-			return BuildQueriesContextValidationError{
-				field:  "Query",
+			return UnitBuildContextValidationError{
+				field:  "Unit",
 				reason: "embedded message failed validation",
 				cause:  err,
 			}
@@ -116,19 +116,19 @@ func (m *BuildQueriesContext) validate(all bool) error {
 	}
 
 	if len(errors) > 0 {
-		return BuildQueriesContextMultiError(errors)
+		return UnitBuildContextMultiError(errors)
 	}
 
 	return nil
 }
 
-// BuildQueriesContextMultiError is an error wrapping multiple validation
-// errors returned by BuildQueriesContext.ValidateAll() if the designated
-// constraints aren't met.
-type BuildQueriesContextMultiError []error
+// UnitBuildContextMultiError is an error wrapping multiple validation errors
+// returned by UnitBuildContext.ValidateAll() if the designated constraints
+// aren't met.
+type UnitBuildContextMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m BuildQueriesContextMultiError) Error() string {
+func (m UnitBuildContextMultiError) Error() string {
 	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -137,11 +137,11 @@ func (m BuildQueriesContextMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m BuildQueriesContextMultiError) AllErrors() []error { return m }
+func (m UnitBuildContextMultiError) AllErrors() []error { return m }
 
-// BuildQueriesContextValidationError is the validation error returned by
-// BuildQueriesContext.Validate if the designated constraints aren't met.
-type BuildQueriesContextValidationError struct {
+// UnitBuildContextValidationError is the validation error returned by
+// UnitBuildContext.Validate if the designated constraints aren't met.
+type UnitBuildContextValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -149,24 +149,22 @@ type BuildQueriesContextValidationError struct {
 }
 
 // Field function returns field value.
-func (e BuildQueriesContextValidationError) Field() string { return e.field }
+func (e UnitBuildContextValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e BuildQueriesContextValidationError) Reason() string { return e.reason }
+func (e UnitBuildContextValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e BuildQueriesContextValidationError) Cause() error { return e.cause }
+func (e UnitBuildContextValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e BuildQueriesContextValidationError) Key() bool { return e.key }
+func (e UnitBuildContextValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e BuildQueriesContextValidationError) ErrorName() string {
-	return "BuildQueriesContextValidationError"
-}
+func (e UnitBuildContextValidationError) ErrorName() string { return "UnitBuildContextValidationError" }
 
 // Error satisfies the builtin error interface
-func (e BuildQueriesContextValidationError) Error() string {
+func (e UnitBuildContextValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -178,14 +176,14 @@ func (e BuildQueriesContextValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sBuildQueriesContext.%s: %s%s",
+		"invalid %sUnitBuildContext.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = BuildQueriesContextValidationError{}
+var _ error = UnitBuildContextValidationError{}
 
 var _ interface {
 	Field() string
@@ -193,7 +191,7 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = BuildQueriesContextValidationError{}
+} = UnitBuildContextValidationError{}
 
 // Validate checks the field values on DriverQuery with the rules defined in
 // the proto definition for this message. If any rules are violated, the first
@@ -332,22 +330,22 @@ var _ interface {
 	ErrorName() string
 } = DriverQueryValidationError{}
 
-// Validate checks the field values on DriverQueriesList with the rules defined
+// Validate checks the field values on DriverTransaction with the rules defined
 // in the proto definition for this message. If any rules are violated, the
 // first error encountered is returned, or nil if there are no violations.
-func (m *DriverQueriesList) Validate() error {
+func (m *DriverTransaction) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on DriverQueriesList with the rules
+// ValidateAll checks the field values on DriverTransaction with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the result is a list of violation errors wrapped in
-// DriverQueriesListMultiError, or nil if none found.
-func (m *DriverQueriesList) ValidateAll() error {
+// DriverTransactionMultiError, or nil if none found.
+func (m *DriverTransaction) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *DriverQueriesList) validate(all bool) error {
+func (m *DriverTransaction) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -361,7 +359,7 @@ func (m *DriverQueriesList) validate(all bool) error {
 			switch v := interface{}(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
-					errors = append(errors, DriverQueriesListValidationError{
+					errors = append(errors, DriverTransactionValidationError{
 						field:  fmt.Sprintf("Queries[%v]", idx),
 						reason: "embedded message failed validation",
 						cause:  err,
@@ -369,7 +367,7 @@ func (m *DriverQueriesList) validate(all bool) error {
 				}
 			case interface{ Validate() error }:
 				if err := v.Validate(); err != nil {
-					errors = append(errors, DriverQueriesListValidationError{
+					errors = append(errors, DriverTransactionValidationError{
 						field:  fmt.Sprintf("Queries[%v]", idx),
 						reason: "embedded message failed validation",
 						cause:  err,
@@ -378,7 +376,7 @@ func (m *DriverQueriesList) validate(all bool) error {
 			}
 		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
-				return DriverQueriesListValidationError{
+				return DriverTransactionValidationError{
 					field:  fmt.Sprintf("Queries[%v]", idx),
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -388,20 +386,22 @@ func (m *DriverQueriesList) validate(all bool) error {
 
 	}
 
+	// no validation rules for IsolationLevel
+
 	if len(errors) > 0 {
-		return DriverQueriesListMultiError(errors)
+		return DriverTransactionMultiError(errors)
 	}
 
 	return nil
 }
 
-// DriverQueriesListMultiError is an error wrapping multiple validation errors
-// returned by DriverQueriesList.ValidateAll() if the designated constraints
+// DriverTransactionMultiError is an error wrapping multiple validation errors
+// returned by DriverTransaction.ValidateAll() if the designated constraints
 // aren't met.
-type DriverQueriesListMultiError []error
+type DriverTransactionMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m DriverQueriesListMultiError) Error() string {
+func (m DriverTransactionMultiError) Error() string {
 	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -410,11 +410,11 @@ func (m DriverQueriesListMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m DriverQueriesListMultiError) AllErrors() []error { return m }
+func (m DriverTransactionMultiError) AllErrors() []error { return m }
 
-// DriverQueriesListValidationError is the validation error returned by
-// DriverQueriesList.Validate if the designated constraints aren't met.
-type DriverQueriesListValidationError struct {
+// DriverTransactionValidationError is the validation error returned by
+// DriverTransaction.Validate if the designated constraints aren't met.
+type DriverTransactionValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -422,24 +422,24 @@ type DriverQueriesListValidationError struct {
 }
 
 // Field function returns field value.
-func (e DriverQueriesListValidationError) Field() string { return e.field }
+func (e DriverTransactionValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e DriverQueriesListValidationError) Reason() string { return e.reason }
+func (e DriverTransactionValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e DriverQueriesListValidationError) Cause() error { return e.cause }
+func (e DriverTransactionValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e DriverQueriesListValidationError) Key() bool { return e.key }
+func (e DriverTransactionValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e DriverQueriesListValidationError) ErrorName() string {
-	return "DriverQueriesListValidationError"
+func (e DriverTransactionValidationError) ErrorName() string {
+	return "DriverTransactionValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e DriverQueriesListValidationError) Error() string {
+func (e DriverTransactionValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -451,14 +451,14 @@ func (e DriverQueriesListValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sDriverQueriesList.%s: %s%s",
+		"invalid %sDriverTransaction.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = DriverQueriesListValidationError{}
+var _ error = DriverTransactionValidationError{}
 
 var _ interface {
 	Field() string
@@ -466,4 +466,472 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = DriverQueriesListValidationError{}
+} = DriverTransactionValidationError{}
+
+// Validate checks the field values on DriverTransactionList with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *DriverTransactionList) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on DriverTransactionList with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// DriverTransactionListMultiError, or nil if none found.
+func (m *DriverTransactionList) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *DriverTransactionList) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	for idx, item := range m.GetTransactions() {
+		_, _ = idx, item
+
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, DriverTransactionListValidationError{
+						field:  fmt.Sprintf("Transactions[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, DriverTransactionListValidationError{
+						field:  fmt.Sprintf("Transactions[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return DriverTransactionListValidationError{
+					field:  fmt.Sprintf("Transactions[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	if len(errors) > 0 {
+		return DriverTransactionListMultiError(errors)
+	}
+
+	return nil
+}
+
+// DriverTransactionListMultiError is an error wrapping multiple validation
+// errors returned by DriverTransactionList.ValidateAll() if the designated
+// constraints aren't met.
+type DriverTransactionListMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m DriverTransactionListMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m DriverTransactionListMultiError) AllErrors() []error { return m }
+
+// DriverTransactionListValidationError is the validation error returned by
+// DriverTransactionList.Validate if the designated constraints aren't met.
+type DriverTransactionListValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e DriverTransactionListValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e DriverTransactionListValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e DriverTransactionListValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e DriverTransactionListValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e DriverTransactionListValidationError) ErrorName() string {
+	return "DriverTransactionListValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e DriverTransactionListValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sDriverTransactionList.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = DriverTransactionListValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = DriverTransactionListValidationError{}
+
+// Validate checks the field values on OnStepQueryBuildEvent with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *OnStepQueryBuildEvent) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on OnStepQueryBuildEvent with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// OnStepQueryBuildEventMultiError, or nil if none found.
+func (m *OnStepQueryBuildEvent) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *OnStepQueryBuildEvent) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if all {
+		switch v := interface{}(m.GetContext()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, OnStepQueryBuildEventValidationError{
+					field:  "Context",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, OnStepQueryBuildEventValidationError{
+					field:  "Context",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetContext()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return OnStepQueryBuildEventValidationError{
+				field:  "Context",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if m.TransactionList != nil {
+
+		if all {
+			switch v := interface{}(m.GetTransactionList()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, OnStepQueryBuildEventValidationError{
+						field:  "TransactionList",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, OnStepQueryBuildEventValidationError{
+						field:  "TransactionList",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetTransactionList()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return OnStepQueryBuildEventValidationError{
+					field:  "TransactionList",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	if m.Error != nil {
+		// no validation rules for Error
+	}
+
+	if len(errors) > 0 {
+		return OnStepQueryBuildEventMultiError(errors)
+	}
+
+	return nil
+}
+
+// OnStepQueryBuildEventMultiError is an error wrapping multiple validation
+// errors returned by OnStepQueryBuildEvent.ValidateAll() if the designated
+// constraints aren't met.
+type OnStepQueryBuildEventMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m OnStepQueryBuildEventMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m OnStepQueryBuildEventMultiError) AllErrors() []error { return m }
+
+// OnStepQueryBuildEventValidationError is the validation error returned by
+// OnStepQueryBuildEvent.Validate if the designated constraints aren't met.
+type OnStepQueryBuildEventValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e OnStepQueryBuildEventValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e OnStepQueryBuildEventValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e OnStepQueryBuildEventValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e OnStepQueryBuildEventValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e OnStepQueryBuildEventValidationError) ErrorName() string {
+	return "OnStepQueryBuildEventValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e OnStepQueryBuildEventValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sOnStepQueryBuildEvent.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = OnStepQueryBuildEventValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = OnStepQueryBuildEventValidationError{}
+
+// Validate checks the field values on OnStepQueryRunEvent with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *OnStepQueryRunEvent) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on OnStepQueryRunEvent with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// OnStepQueryRunEventMultiError, or nil if none found.
+func (m *OnStepQueryRunEvent) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *OnStepQueryRunEvent) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if all {
+		switch v := interface{}(m.GetContext()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, OnStepQueryRunEventValidationError{
+					field:  "Context",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, OnStepQueryRunEventValidationError{
+					field:  "Context",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetContext()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return OnStepQueryRunEventValidationError{
+				field:  "Context",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if all {
+		switch v := interface{}(m.GetQuery()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, OnStepQueryRunEventValidationError{
+					field:  "Query",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, OnStepQueryRunEventValidationError{
+					field:  "Query",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetQuery()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return OnStepQueryRunEventValidationError{
+				field:  "Query",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if m.Error != nil {
+		// no validation rules for Error
+	}
+
+	if len(errors) > 0 {
+		return OnStepQueryRunEventMultiError(errors)
+	}
+
+	return nil
+}
+
+// OnStepQueryRunEventMultiError is an error wrapping multiple validation
+// errors returned by OnStepQueryRunEvent.ValidateAll() if the designated
+// constraints aren't met.
+type OnStepQueryRunEventMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m OnStepQueryRunEventMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m OnStepQueryRunEventMultiError) AllErrors() []error { return m }
+
+// OnStepQueryRunEventValidationError is the validation error returned by
+// OnStepQueryRunEvent.Validate if the designated constraints aren't met.
+type OnStepQueryRunEventValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e OnStepQueryRunEventValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e OnStepQueryRunEventValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e OnStepQueryRunEventValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e OnStepQueryRunEventValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e OnStepQueryRunEventValidationError) ErrorName() string {
+	return "OnStepQueryRunEventValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e OnStepQueryRunEventValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sOnStepQueryRunEvent.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = OnStepQueryRunEventValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = OnStepQueryRunEventValidationError{}
