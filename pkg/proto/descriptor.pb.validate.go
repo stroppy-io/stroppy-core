@@ -1157,22 +1157,22 @@ var _ interface {
 	ErrorName() string
 } = TransactionDescriptorValidationError{}
 
-// Validate checks the field values on StepQueryDescriptor with the rules
+// Validate checks the field values on StepUnitDescriptor with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
-func (m *StepQueryDescriptor) Validate() error {
+func (m *StepUnitDescriptor) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on StepQueryDescriptor with the rules
+// ValidateAll checks the field values on StepUnitDescriptor with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the result is a list of violation errors wrapped in
-// StepQueryDescriptorMultiError, or nil if none found.
-func (m *StepQueryDescriptor) ValidateAll() error {
+// StepUnitDescriptorMultiError, or nil if none found.
+func (m *StepUnitDescriptor) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *StepQueryDescriptor) validate(all bool) error {
+func (m *StepUnitDescriptor) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -1183,9 +1183,9 @@ func (m *StepQueryDescriptor) validate(all bool) error {
 
 	oneofTypePresent := false
 	switch v := m.Type.(type) {
-	case *StepQueryDescriptor_CreateTable:
+	case *StepUnitDescriptor_CreateTable:
 		if v == nil {
-			err := StepQueryDescriptorValidationError{
+			err := StepUnitDescriptorValidationError{
 				field:  "Type",
 				reason: "oneof value cannot be a typed-nil",
 			}
@@ -1200,7 +1200,7 @@ func (m *StepQueryDescriptor) validate(all bool) error {
 			switch v := interface{}(m.GetCreateTable()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
-					errors = append(errors, StepQueryDescriptorValidationError{
+					errors = append(errors, StepUnitDescriptorValidationError{
 						field:  "CreateTable",
 						reason: "embedded message failed validation",
 						cause:  err,
@@ -1208,7 +1208,7 @@ func (m *StepQueryDescriptor) validate(all bool) error {
 				}
 			case interface{ Validate() error }:
 				if err := v.Validate(); err != nil {
-					errors = append(errors, StepQueryDescriptorValidationError{
+					errors = append(errors, StepUnitDescriptorValidationError{
 						field:  "CreateTable",
 						reason: "embedded message failed validation",
 						cause:  err,
@@ -1217,7 +1217,7 @@ func (m *StepQueryDescriptor) validate(all bool) error {
 			}
 		} else if v, ok := interface{}(m.GetCreateTable()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
-				return StepQueryDescriptorValidationError{
+				return StepUnitDescriptorValidationError{
 					field:  "CreateTable",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -1225,9 +1225,9 @@ func (m *StepQueryDescriptor) validate(all bool) error {
 			}
 		}
 
-	case *StepQueryDescriptor_Query:
+	case *StepUnitDescriptor_Query:
 		if v == nil {
-			err := StepQueryDescriptorValidationError{
+			err := StepUnitDescriptorValidationError{
 				field:  "Type",
 				reason: "oneof value cannot be a typed-nil",
 			}
@@ -1242,7 +1242,7 @@ func (m *StepQueryDescriptor) validate(all bool) error {
 			switch v := interface{}(m.GetQuery()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
-					errors = append(errors, StepQueryDescriptorValidationError{
+					errors = append(errors, StepUnitDescriptorValidationError{
 						field:  "Query",
 						reason: "embedded message failed validation",
 						cause:  err,
@@ -1250,7 +1250,7 @@ func (m *StepQueryDescriptor) validate(all bool) error {
 				}
 			case interface{ Validate() error }:
 				if err := v.Validate(); err != nil {
-					errors = append(errors, StepQueryDescriptorValidationError{
+					errors = append(errors, StepUnitDescriptorValidationError{
 						field:  "Query",
 						reason: "embedded message failed validation",
 						cause:  err,
@@ -1259,7 +1259,7 @@ func (m *StepQueryDescriptor) validate(all bool) error {
 			}
 		} else if v, ok := interface{}(m.GetQuery()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
-				return StepQueryDescriptorValidationError{
+				return StepUnitDescriptorValidationError{
 					field:  "Query",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -1267,9 +1267,9 @@ func (m *StepQueryDescriptor) validate(all bool) error {
 			}
 		}
 
-	case *StepQueryDescriptor_Transaction:
+	case *StepUnitDescriptor_Transaction:
 		if v == nil {
-			err := StepQueryDescriptorValidationError{
+			err := StepUnitDescriptorValidationError{
 				field:  "Type",
 				reason: "oneof value cannot be a typed-nil",
 			}
@@ -1284,7 +1284,7 @@ func (m *StepQueryDescriptor) validate(all bool) error {
 			switch v := interface{}(m.GetTransaction()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
-					errors = append(errors, StepQueryDescriptorValidationError{
+					errors = append(errors, StepUnitDescriptorValidationError{
 						field:  "Transaction",
 						reason: "embedded message failed validation",
 						cause:  err,
@@ -1292,7 +1292,7 @@ func (m *StepQueryDescriptor) validate(all bool) error {
 				}
 			case interface{ Validate() error }:
 				if err := v.Validate(); err != nil {
-					errors = append(errors, StepQueryDescriptorValidationError{
+					errors = append(errors, StepUnitDescriptorValidationError{
 						field:  "Transaction",
 						reason: "embedded message failed validation",
 						cause:  err,
@@ -1301,7 +1301,7 @@ func (m *StepQueryDescriptor) validate(all bool) error {
 			}
 		} else if v, ok := interface{}(m.GetTransaction()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
-				return StepQueryDescriptorValidationError{
+				return StepUnitDescriptorValidationError{
 					field:  "Transaction",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -1313,7 +1313,7 @@ func (m *StepQueryDescriptor) validate(all bool) error {
 		_ = v // ensures v is used
 	}
 	if !oneofTypePresent {
-		err := StepQueryDescriptorValidationError{
+		err := StepUnitDescriptorValidationError{
 			field:  "Type",
 			reason: "value is required",
 		}
@@ -1324,19 +1324,19 @@ func (m *StepQueryDescriptor) validate(all bool) error {
 	}
 
 	if len(errors) > 0 {
-		return StepQueryDescriptorMultiError(errors)
+		return StepUnitDescriptorMultiError(errors)
 	}
 
 	return nil
 }
 
-// StepQueryDescriptorMultiError is an error wrapping multiple validation
-// errors returned by StepQueryDescriptor.ValidateAll() if the designated
-// constraints aren't met.
-type StepQueryDescriptorMultiError []error
+// StepUnitDescriptorMultiError is an error wrapping multiple validation errors
+// returned by StepUnitDescriptor.ValidateAll() if the designated constraints
+// aren't met.
+type StepUnitDescriptorMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m StepQueryDescriptorMultiError) Error() string {
+func (m StepUnitDescriptorMultiError) Error() string {
 	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -1345,11 +1345,11 @@ func (m StepQueryDescriptorMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m StepQueryDescriptorMultiError) AllErrors() []error { return m }
+func (m StepUnitDescriptorMultiError) AllErrors() []error { return m }
 
-// StepQueryDescriptorValidationError is the validation error returned by
-// StepQueryDescriptor.Validate if the designated constraints aren't met.
-type StepQueryDescriptorValidationError struct {
+// StepUnitDescriptorValidationError is the validation error returned by
+// StepUnitDescriptor.Validate if the designated constraints aren't met.
+type StepUnitDescriptorValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -1357,24 +1357,24 @@ type StepQueryDescriptorValidationError struct {
 }
 
 // Field function returns field value.
-func (e StepQueryDescriptorValidationError) Field() string { return e.field }
+func (e StepUnitDescriptorValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e StepQueryDescriptorValidationError) Reason() string { return e.reason }
+func (e StepUnitDescriptorValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e StepQueryDescriptorValidationError) Cause() error { return e.cause }
+func (e StepUnitDescriptorValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e StepQueryDescriptorValidationError) Key() bool { return e.key }
+func (e StepUnitDescriptorValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e StepQueryDescriptorValidationError) ErrorName() string {
-	return "StepQueryDescriptorValidationError"
+func (e StepUnitDescriptorValidationError) ErrorName() string {
+	return "StepUnitDescriptorValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e StepQueryDescriptorValidationError) Error() string {
+func (e StepUnitDescriptorValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -1386,14 +1386,14 @@ func (e StepQueryDescriptorValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sStepQueryDescriptor.%s: %s%s",
+		"invalid %sStepUnitDescriptor.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = StepQueryDescriptorValidationError{}
+var _ error = StepUnitDescriptorValidationError{}
 
 var _ interface {
 	Field() string
@@ -1401,7 +1401,7 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = StepQueryDescriptorValidationError{}
+} = StepUnitDescriptorValidationError{}
 
 // Validate checks the field values on StepDescriptor with the rules defined in
 // the proto definition for this message. If any rules are violated, the first
@@ -1436,9 +1436,9 @@ func (m *StepDescriptor) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
-	if len(m.GetQueries()) < 1 {
+	if len(m.GetUnits()) < 1 {
 		err := StepDescriptorValidationError{
-			field:  "Queries",
+			field:  "Units",
 			reason: "value must contain at least 1 item(s)",
 		}
 		if !all {
@@ -1447,12 +1447,12 @@ func (m *StepDescriptor) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
-	for idx, item := range m.GetQueries() {
+	for idx, item := range m.GetUnits() {
 		_, _ = idx, item
 
 		if item == nil {
 			err := StepDescriptorValidationError{
-				field:  fmt.Sprintf("Queries[%v]", idx),
+				field:  fmt.Sprintf("Units[%v]", idx),
 				reason: "value is required",
 			}
 			if !all {
@@ -1466,7 +1466,7 @@ func (m *StepDescriptor) validate(all bool) error {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, StepDescriptorValidationError{
-						field:  fmt.Sprintf("Queries[%v]", idx),
+						field:  fmt.Sprintf("Units[%v]", idx),
 						reason: "embedded message failed validation",
 						cause:  err,
 					})
@@ -1474,7 +1474,7 @@ func (m *StepDescriptor) validate(all bool) error {
 			case interface{ Validate() error }:
 				if err := v.Validate(); err != nil {
 					errors = append(errors, StepDescriptorValidationError{
-						field:  fmt.Sprintf("Queries[%v]", idx),
+						field:  fmt.Sprintf("Units[%v]", idx),
 						reason: "embedded message failed validation",
 						cause:  err,
 					})
@@ -1483,7 +1483,7 @@ func (m *StepDescriptor) validate(all bool) error {
 		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return StepDescriptorValidationError{
-					field:  fmt.Sprintf("Queries[%v]", idx),
+					field:  fmt.Sprintf("Units[%v]", idx),
 					reason: "embedded message failed validation",
 					cause:  err,
 				}
