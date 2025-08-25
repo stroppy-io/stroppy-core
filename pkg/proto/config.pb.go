@@ -170,6 +170,52 @@ func (LoggerConfig_LogMode) EnumDescriptor() ([]byte, []int) {
 	return file_config_proto_rawDescGZIP(), []int{5, 1}
 }
 
+type Plugin_Type int32
+
+const (
+	Plugin_TYPE_UNSPECIFIED Plugin_Type = 0
+	Plugin_TYPE_SIDECAR     Plugin_Type = 1
+)
+
+// Enum value maps for Plugin_Type.
+var (
+	Plugin_Type_name = map[int32]string{
+		0: "TYPE_UNSPECIFIED",
+		1: "TYPE_SIDECAR",
+	}
+	Plugin_Type_value = map[string]int32{
+		"TYPE_UNSPECIFIED": 0,
+		"TYPE_SIDECAR":     1,
+	}
+)
+
+func (x Plugin_Type) Enum() *Plugin_Type {
+	p := new(Plugin_Type)
+	*p = x
+	return p
+}
+
+func (x Plugin_Type) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (Plugin_Type) Descriptor() protoreflect.EnumDescriptor {
+	return file_config_proto_enumTypes[3].Descriptor()
+}
+
+func (Plugin_Type) Type() protoreflect.EnumType {
+	return &file_config_proto_enumTypes[3]
+}
+
+func (x Plugin_Type) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use Plugin_Type.Descriptor instead.
+func (Plugin_Type) EnumDescriptor() ([]byte, []int) {
+	return file_config_proto_rawDescGZIP(), []int{7, 0}
+}
+
 // *
 // OtlpExport contains configuration for exporting metrics via OpenTelemetry Protocol (OTLP).
 // It specifies the endpoint and metrics prefix for telemetry data export.
@@ -674,6 +720,71 @@ func (x *StepContext) GetGlobalConfig() *Config {
 }
 
 // *
+// Plugins contains configuration for plugins.
+type Plugin struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// * Type of the plugin
+	Type Plugin_Type `protobuf:"varint,1,opt,name=type,proto3,enum=stroppy.Plugin_Type" json:"type,omitempty"`
+	// * Path to the plugin binary
+	Path string `protobuf:"bytes,2,opt,name=path,proto3" json:"path,omitempty"`
+	// * Additional plugin settings
+	Settings      *Value_Struct `protobuf:"bytes,3,opt,name=settings,proto3,oneof" json:"settings,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Plugin) Reset() {
+	*x = Plugin{}
+	mi := &file_config_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Plugin) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Plugin) ProtoMessage() {}
+
+func (x *Plugin) ProtoReflect() protoreflect.Message {
+	mi := &file_config_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Plugin.ProtoReflect.Descriptor instead.
+func (*Plugin) Descriptor() ([]byte, []int) {
+	return file_config_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *Plugin) GetType() Plugin_Type {
+	if x != nil {
+		return x.Type
+	}
+	return Plugin_TYPE_UNSPECIFIED
+}
+
+func (x *Plugin) GetPath() string {
+	if x != nil {
+		return x.Path
+	}
+	return ""
+}
+
+func (x *Plugin) GetSettings() *Value_Struct {
+	if x != nil {
+		return x.Settings
+	}
+	return nil
+}
+
+// *
 // RunConfig contains the complete configuration for a benchmark run.
 type RunConfig struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -692,14 +803,16 @@ type RunConfig struct {
 	// * Logging configuration
 	Logger *LoggerConfig `protobuf:"bytes,7,opt,name=logger,proto3" json:"logger,omitempty"`
 	// * Arbitrary metadata, may be passed to result labels and json output
-	Metadata      map[string]string `protobuf:"bytes,8,rep,name=metadata,proto3" json:"metadata,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	Metadata map[string]string `protobuf:"bytes,8,rep,name=metadata,proto3" json:"metadata,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	// * Plugins configuration
+	Plugins       []*Plugin `protobuf:"bytes,9,rep,name=plugins,proto3" json:"plugins,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *RunConfig) Reset() {
 	*x = RunConfig{}
-	mi := &file_config_proto_msgTypes[7]
+	mi := &file_config_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -711,7 +824,7 @@ func (x *RunConfig) String() string {
 func (*RunConfig) ProtoMessage() {}
 
 func (x *RunConfig) ProtoReflect() protoreflect.Message {
-	mi := &file_config_proto_msgTypes[7]
+	mi := &file_config_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -724,7 +837,7 @@ func (x *RunConfig) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RunConfig.ProtoReflect.Descriptor instead.
 func (*RunConfig) Descriptor() ([]byte, []int) {
-	return file_config_proto_rawDescGZIP(), []int{7}
+	return file_config_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *RunConfig) GetRunId() string {
@@ -783,6 +896,13 @@ func (x *RunConfig) GetMetadata() map[string]string {
 	return nil
 }
 
+func (x *RunConfig) GetPlugins() []*Plugin {
+	if x != nil {
+		return x.Plugins
+	}
+	return nil
+}
+
 // *
 // Config contains the complete configuration for a benchmark run.
 type Config struct {
@@ -802,7 +922,7 @@ type Config struct {
 
 func (x *Config) Reset() {
 	*x = Config{}
-	mi := &file_config_proto_msgTypes[8]
+	mi := &file_config_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -814,7 +934,7 @@ func (x *Config) String() string {
 func (*Config) ProtoMessage() {}
 
 func (x *Config) ProtoReflect() protoreflect.Message {
-	mi := &file_config_proto_msgTypes[8]
+	mi := &file_config_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -827,7 +947,7 @@ func (x *Config) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Config.ProtoReflect.Descriptor instead.
 func (*Config) Descriptor() ([]byte, []int) {
-	return file_config_proto_rawDescGZIP(), []int{8}
+	return file_config_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *Config) GetVersion() string {
@@ -920,7 +1040,15 @@ const file_config_proto_rawDesc = "" +
 	"\x06config\x18\x01 \x01(\v2\x12.stroppy.RunConfigB\x02\x18\x01R\x06config\x12>\n" +
 	"\tbenchmark\x18\x04 \x01(\v2\x1c.stroppy.BenchmarkDescriptorB\x02\x18\x01R\tbenchmark\x12+\n" +
 	"\x04step\x18\x05 \x01(\v2\x17.stroppy.StepDescriptorR\x04step\x124\n" +
-	"\rglobal_config\x18\x06 \x01(\v2\x0f.stroppy.ConfigR\fglobalConfig\"\xcd\x03\n" +
+	"\rglobal_config\x18\x06 \x01(\v2\x0f.stroppy.ConfigR\fglobalConfig\"\xcf\x01\n" +
+	"\x06Plugin\x122\n" +
+	"\x04type\x18\x01 \x01(\x0e2\x14.stroppy.Plugin.TypeB\b\xfaB\x05\x82\x01\x02\x10\x01R\x04type\x12\x1c\n" +
+	"\x04path\x18\x02 \x01(\tB\b\xfaB\x05r\x03\x90\x01\x01R\x04path\x126\n" +
+	"\bsettings\x18\x03 \x01(\v2\x15.stroppy.Value.StructH\x00R\bsettings\x88\x01\x01\".\n" +
+	"\x04Type\x12\x14\n" +
+	"\x10TYPE_UNSPECIFIED\x10\x00\x12\x10\n" +
+	"\fTYPE_SIDECAR\x10\x01B\v\n" +
+	"\t_settings\"\xf8\x03\n" +
 	"\tRunConfig\x12\x15\n" +
 	"\x06run_id\x18\x01 \x01(\tR\x05runId\x12\x1b\n" +
 	"\x04seed\x18\x02 \x01(\x04B\a\xfaB\x042\x02(\x00R\x04seed\x127\n" +
@@ -931,7 +1059,8 @@ const file_config_proto_rawDesc = "" +
 	"k6Executor\x12=\n" +
 	"\x05steps\x18\x06 \x03(\v2\x16.stroppy.RequestedStepB\x0f\xfaB\f\x92\x01\t\b\x01\"\x05\x8a\x01\x02\x10\x01R\x05steps\x12-\n" +
 	"\x06logger\x18\a \x01(\v2\x15.stroppy.LoggerConfigR\x06logger\x12<\n" +
-	"\bmetadata\x18\b \x03(\v2 .stroppy.RunConfig.MetadataEntryR\bmetadata\x1a;\n" +
+	"\bmetadata\x18\b \x03(\v2 .stroppy.RunConfig.MetadataEntryR\bmetadata\x12)\n" +
+	"\aplugins\x18\t \x03(\v2\x0f.stroppy.PluginR\aplugins\x1a;\n" +
 	"\rMetadataEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x98\x01\n" +
@@ -952,52 +1081,57 @@ func file_config_proto_rawDescGZIP() []byte {
 	return file_config_proto_rawDescData
 }
 
-var file_config_proto_enumTypes = make([]protoimpl.EnumInfo, 3)
-var file_config_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
+var file_config_proto_enumTypes = make([]protoimpl.EnumInfo, 4)
+var file_config_proto_msgTypes = make([]protoimpl.MessageInfo, 11)
 var file_config_proto_goTypes = []any{
 	(RequestedStep_ExecutorType)(0), // 0: stroppy.RequestedStep.ExecutorType
 	(LoggerConfig_LogLevel)(0),      // 1: stroppy.LoggerConfig.LogLevel
 	(LoggerConfig_LogMode)(0),       // 2: stroppy.LoggerConfig.LogMode
-	(*OtlpExport)(nil),              // 3: stroppy.OtlpExport
-	(*GoExecutor)(nil),              // 4: stroppy.GoExecutor
-	(*K6Executor)(nil),              // 5: stroppy.K6Executor
-	(*DriverConfig)(nil),            // 6: stroppy.DriverConfig
-	(*RequestedStep)(nil),           // 7: stroppy.RequestedStep
-	(*LoggerConfig)(nil),            // 8: stroppy.LoggerConfig
-	(*StepContext)(nil),             // 9: stroppy.StepContext
-	(*RunConfig)(nil),               // 10: stroppy.RunConfig
-	(*Config)(nil),                  // 11: stroppy.Config
-	nil,                             // 12: stroppy.RunConfig.MetadataEntry
-	(*durationpb.Duration)(nil),     // 13: google.protobuf.Duration
-	(*Value_Struct)(nil),            // 14: stroppy.Value.Struct
-	(*BenchmarkDescriptor)(nil),     // 15: stroppy.BenchmarkDescriptor
-	(*StepDescriptor)(nil),          // 16: stroppy.StepDescriptor
+	(Plugin_Type)(0),                // 3: stroppy.Plugin.Type
+	(*OtlpExport)(nil),              // 4: stroppy.OtlpExport
+	(*GoExecutor)(nil),              // 5: stroppy.GoExecutor
+	(*K6Executor)(nil),              // 6: stroppy.K6Executor
+	(*DriverConfig)(nil),            // 7: stroppy.DriverConfig
+	(*RequestedStep)(nil),           // 8: stroppy.RequestedStep
+	(*LoggerConfig)(nil),            // 9: stroppy.LoggerConfig
+	(*StepContext)(nil),             // 10: stroppy.StepContext
+	(*Plugin)(nil),                  // 11: stroppy.Plugin
+	(*RunConfig)(nil),               // 12: stroppy.RunConfig
+	(*Config)(nil),                  // 13: stroppy.Config
+	nil,                             // 14: stroppy.RunConfig.MetadataEntry
+	(*durationpb.Duration)(nil),     // 15: google.protobuf.Duration
+	(*Value_Struct)(nil),            // 16: stroppy.Value.Struct
+	(*BenchmarkDescriptor)(nil),     // 17: stroppy.BenchmarkDescriptor
+	(*StepDescriptor)(nil),          // 18: stroppy.StepDescriptor
 }
 var file_config_proto_depIdxs = []int32{
-	13, // 0: stroppy.K6Executor.k6_setup_timeout:type_name -> google.protobuf.Duration
-	13, // 1: stroppy.K6Executor.k6_duration:type_name -> google.protobuf.Duration
-	3,  // 2: stroppy.K6Executor.otlp_export:type_name -> stroppy.OtlpExport
-	14, // 3: stroppy.DriverConfig.db_specific:type_name -> stroppy.Value.Struct
+	15, // 0: stroppy.K6Executor.k6_setup_timeout:type_name -> google.protobuf.Duration
+	15, // 1: stroppy.K6Executor.k6_duration:type_name -> google.protobuf.Duration
+	4,  // 2: stroppy.K6Executor.otlp_export:type_name -> stroppy.OtlpExport
+	16, // 3: stroppy.DriverConfig.db_specific:type_name -> stroppy.Value.Struct
 	0,  // 4: stroppy.RequestedStep.executor:type_name -> stroppy.RequestedStep.ExecutorType
 	1,  // 5: stroppy.LoggerConfig.log_level:type_name -> stroppy.LoggerConfig.LogLevel
 	2,  // 6: stroppy.LoggerConfig.log_mode:type_name -> stroppy.LoggerConfig.LogMode
-	10, // 7: stroppy.StepContext.config:type_name -> stroppy.RunConfig
-	15, // 8: stroppy.StepContext.benchmark:type_name -> stroppy.BenchmarkDescriptor
-	16, // 9: stroppy.StepContext.step:type_name -> stroppy.StepDescriptor
-	11, // 10: stroppy.StepContext.global_config:type_name -> stroppy.Config
-	6,  // 11: stroppy.RunConfig.driver:type_name -> stroppy.DriverConfig
-	4,  // 12: stroppy.RunConfig.go_executor:type_name -> stroppy.GoExecutor
-	5,  // 13: stroppy.RunConfig.k6_executor:type_name -> stroppy.K6Executor
-	7,  // 14: stroppy.RunConfig.steps:type_name -> stroppy.RequestedStep
-	8,  // 15: stroppy.RunConfig.logger:type_name -> stroppy.LoggerConfig
-	12, // 16: stroppy.RunConfig.metadata:type_name -> stroppy.RunConfig.MetadataEntry
-	10, // 17: stroppy.Config.run:type_name -> stroppy.RunConfig
-	15, // 18: stroppy.Config.benchmark:type_name -> stroppy.BenchmarkDescriptor
-	19, // [19:19] is the sub-list for method output_type
-	19, // [19:19] is the sub-list for method input_type
-	19, // [19:19] is the sub-list for extension type_name
-	19, // [19:19] is the sub-list for extension extendee
-	0,  // [0:19] is the sub-list for field type_name
+	12, // 7: stroppy.StepContext.config:type_name -> stroppy.RunConfig
+	17, // 8: stroppy.StepContext.benchmark:type_name -> stroppy.BenchmarkDescriptor
+	18, // 9: stroppy.StepContext.step:type_name -> stroppy.StepDescriptor
+	13, // 10: stroppy.StepContext.global_config:type_name -> stroppy.Config
+	3,  // 11: stroppy.Plugin.type:type_name -> stroppy.Plugin.Type
+	16, // 12: stroppy.Plugin.settings:type_name -> stroppy.Value.Struct
+	7,  // 13: stroppy.RunConfig.driver:type_name -> stroppy.DriverConfig
+	5,  // 14: stroppy.RunConfig.go_executor:type_name -> stroppy.GoExecutor
+	6,  // 15: stroppy.RunConfig.k6_executor:type_name -> stroppy.K6Executor
+	8,  // 16: stroppy.RunConfig.steps:type_name -> stroppy.RequestedStep
+	9,  // 17: stroppy.RunConfig.logger:type_name -> stroppy.LoggerConfig
+	14, // 18: stroppy.RunConfig.metadata:type_name -> stroppy.RunConfig.MetadataEntry
+	11, // 19: stroppy.RunConfig.plugins:type_name -> stroppy.Plugin
+	12, // 20: stroppy.Config.run:type_name -> stroppy.RunConfig
+	17, // 21: stroppy.Config.benchmark:type_name -> stroppy.BenchmarkDescriptor
+	22, // [22:22] is the sub-list for method output_type
+	22, // [22:22] is the sub-list for method input_type
+	22, // [22:22] is the sub-list for extension type_name
+	22, // [22:22] is the sub-list for extension extendee
+	0,  // [0:22] is the sub-list for field type_name
 }
 
 func init() { file_config_proto_init() }
@@ -1012,13 +1146,14 @@ func file_config_proto_init() {
 	file_config_proto_msgTypes[2].OneofWrappers = []any{}
 	file_config_proto_msgTypes[3].OneofWrappers = []any{}
 	file_config_proto_msgTypes[4].OneofWrappers = []any{}
+	file_config_proto_msgTypes[7].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_config_proto_rawDesc), len(file_config_proto_rawDesc)),
-			NumEnums:      3,
-			NumMessages:   10,
+			NumEnums:      4,
+			NumMessages:   11,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

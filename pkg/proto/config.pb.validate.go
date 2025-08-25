@@ -1188,6 +1188,160 @@ var _ interface {
 	ErrorName() string
 } = StepContextValidationError{}
 
+// Validate checks the field values on Plugin with the rules defined in the
+// proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
+func (m *Plugin) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on Plugin with the rules defined in the
+// proto definition for this message. If any rules are violated, the result is
+// a list of violation errors wrapped in PluginMultiError, or nil if none found.
+func (m *Plugin) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *Plugin) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if _, ok := Plugin_Type_name[int32(m.GetType())]; !ok {
+		err := PluginValidationError{
+			field:  "Type",
+			reason: "value must be one of the defined enum values",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if _, err := url.Parse(m.GetPath()); err != nil {
+		err = PluginValidationError{
+			field:  "Path",
+			reason: "value must be a valid URI",
+			cause:  err,
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if m.Settings != nil {
+
+		if all {
+			switch v := interface{}(m.GetSettings()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, PluginValidationError{
+						field:  "Settings",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, PluginValidationError{
+						field:  "Settings",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetSettings()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return PluginValidationError{
+					field:  "Settings",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	if len(errors) > 0 {
+		return PluginMultiError(errors)
+	}
+
+	return nil
+}
+
+// PluginMultiError is an error wrapping multiple validation errors returned by
+// Plugin.ValidateAll() if the designated constraints aren't met.
+type PluginMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m PluginMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m PluginMultiError) AllErrors() []error { return m }
+
+// PluginValidationError is the validation error returned by Plugin.Validate if
+// the designated constraints aren't met.
+type PluginValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e PluginValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e PluginValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e PluginValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e PluginValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e PluginValidationError) ErrorName() string { return "PluginValidationError" }
+
+// Error satisfies the builtin error interface
+func (e PluginValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sPlugin.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = PluginValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = PluginValidationError{}
+
 // Validate checks the field values on RunConfig with the rules defined in the
 // proto definition for this message. If any rules are violated, the first
 // error encountered is returned, or nil if there are no violations.
@@ -1407,6 +1561,40 @@ func (m *RunConfig) validate(all bool) error {
 	}
 
 	// no validation rules for Metadata
+
+	for idx, item := range m.GetPlugins() {
+		_, _ = idx, item
+
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, RunConfigValidationError{
+						field:  fmt.Sprintf("Plugins[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, RunConfigValidationError{
+						field:  fmt.Sprintf("Plugins[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return RunConfigValidationError{
+					field:  fmt.Sprintf("Plugins[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
 
 	if len(errors) > 0 {
 		return RunConfigMultiError(errors)
