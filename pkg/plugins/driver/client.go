@@ -11,6 +11,7 @@ import (
 	"google.golang.org/protobuf/types/known/emptypb"
 
 	"github.com/stroppy-io/stroppy-core/pkg/logger"
+	"github.com/stroppy-io/stroppy-core/pkg/plugins/streams"
 	stroppy "github.com/stroppy-io/stroppy-core/pkg/proto"
 )
 
@@ -37,18 +38,30 @@ func (d *client) Initialize(
 	return err
 }
 
-func (d *client) BuildQueries(
+func (d *client) BuildTransactionsFromUnit(
 	ctx context.Context,
-	buildQueriesContext *stroppy.BuildQueriesContext,
-) (*stroppy.DriverQueriesList, error) {
-	return d.protoClient.BuildQueries(ctx, buildQueriesContext)
+	buildUnitContext *stroppy.UnitBuildContext,
+) (*stroppy.DriverTransactionList, error) {
+	return d.protoClient.BuildTransactionsFromUnit(ctx, buildUnitContext)
 }
 
-func (d *client) RunQuery(
+func (d *client) BuildTransactionsFromUnitStream(
 	ctx context.Context,
-	query *stroppy.DriverQuery,
+	buildUnitContext *stroppy.UnitBuildContext,
+) (streams.ServerStream[stroppy.DriverTransaction], error) {
+	stream, err := d.protoClient.BuildTransactionsFromUnitStream(ctx, buildUnitContext)
+	if err != nil {
+		return nil, err
+	}
+
+	return streams.WrapServerStreamingClient(stream), nil
+}
+
+func (d *client) RunTransaction(
+	ctx context.Context,
+	transaction *stroppy.DriverTransaction,
 ) error {
-	_, err := d.protoClient.RunQuery(ctx, query)
+	_, err := d.protoClient.RunTransaction(ctx, transaction)
 
 	return err
 }

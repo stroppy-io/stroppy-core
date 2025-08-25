@@ -6,18 +6,9 @@ import (
 	"github.com/hashicorp/go-plugin"
 	"google.golang.org/grpc"
 
+	"github.com/stroppy-io/stroppy-core/pkg/plugins/streams"
 	stroppy "github.com/stroppy-io/stroppy-core/pkg/proto"
 )
-
-type Plugin interface {
-	Initialize(ctx context.Context, runContext *stroppy.StepContext) error
-	BuildQueries(
-		ctx context.Context,
-		buildQueriesContext *stroppy.BuildQueriesContext,
-	) (*stroppy.DriverQueriesList, error)
-	RunQuery(ctx context.Context, query *stroppy.DriverQuery) error
-	Teardown(ctx context.Context) error
-}
 
 const (
 	pluginVersion    = 1
@@ -33,6 +24,19 @@ var PluginHandshake = plugin.HandshakeConfig{ //nolint: gochecknoglobals // allo
 	MagicCookieValue: magicCookieValue,
 }
 
+type Plugin interface {
+	Initialize(ctx context.Context, runContext *stroppy.StepContext) error
+	BuildTransactionsFromUnit(
+		ctx context.Context,
+		buildUnitContext *stroppy.UnitBuildContext,
+	) (*stroppy.DriverTransactionList, error)
+	BuildTransactionsFromUnitStream(
+		ctx context.Context,
+		buildUnitContext *stroppy.UnitBuildContext,
+	) (streams.ServerStream[stroppy.DriverTransaction], error)
+	RunTransaction(ctx context.Context, transaction *stroppy.DriverTransaction) error
+	Teardown(ctx context.Context) error
+}
 type SharedPlugin struct {
 	plugin.Plugin
 	Impl Plugin

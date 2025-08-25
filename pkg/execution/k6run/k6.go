@@ -86,17 +86,17 @@ func RunStep(
 		return ErrStepIsNil
 	}
 
-	if runContext.GetConfig().GetK6Executor() == nil {
+	if runContext.GetGlobalConfig().GetRun().GetK6Executor() == nil {
 		return ErrConfigIsNil
 	}
 
 	if runContext.GetStep().GetAsync() {
-		queries := slices.Clone(runContext.GetStep().GetQueries())
-		rand.Shuffle(len(queries), func(i, j int) {
-			queries[i], queries[j] = queries[j], queries[i]
+		units := slices.Clone(runContext.GetStep().GetUnits())
+		rand.Shuffle(len(units), func(i, j int) {
+			units[i], units[j] = units[j], units[i]
 		})
 
-		runContext.GetStep().Queries = queries
+		runContext.GetStep().Units = units
 	}
 
 	contextStr, err := protojson.Marshal(runContext)
@@ -106,27 +106,27 @@ func RunStep(
 
 	baseArgs := []string{
 		"run",
-		runContext.GetConfig().GetK6Executor().GetK6ScriptPath(),
+		runContext.GetGlobalConfig().GetRun().GetK6Executor().GetK6ScriptPath(),
 		"-econtext=" + string(contextStr),
 	}
 
-	if runContext.GetConfig().GetK6Executor().GetOtlpExport() != nil {
+	if runContext.GetGlobalConfig().GetRun().GetK6Executor().GetOtlpExport() != nil {
 		os.Setenv("K6_OTEL_GRPC_EXPORTER_INSECURE", "true")
 		os.Setenv(
 			"K6_OTEL_METRIC_PREFIX",
 			utils2.StringOrDefault(
-				runContext.GetConfig().GetK6Executor().GetOtlpExport().GetOtlpMetricsPrefix(),
+				runContext.GetGlobalConfig().GetRun().GetK6Executor().GetOtlpExport().GetOtlpMetricsPrefix(),
 				"k6_",
 			),
 		)
 		os.Setenv(
 			"K6_OTEL_SERVICE_NAME",
 			fmt.Sprintf("%s_%s",
-				runContext.GetBenchmark().GetName(),
+				runContext.GetGlobalConfig().GetBenchmark().GetName(),
 				runContext.GetStep().GetName()),
 		)
 		os.Setenv("K6_OTEL_GRPC_EXPORTER_ENDPOINT", utils2.StringOrDefault(
-			runContext.GetConfig().GetK6Executor().GetOtlpExport().GetOtlpGrpcEndpoint(),
+			runContext.GetGlobalConfig().GetRun().GetK6Executor().GetOtlpExport().GetOtlpGrpcEndpoint(),
 			"localhost:4317",
 		))
 
@@ -135,18 +135,18 @@ func RunStep(
 
 	baseArgs = append(
 		baseArgs,
-		runContext.GetConfig().GetK6Executor().GetK6BinaryArgs()...,
+		runContext.GetGlobalConfig().GetRun().GetK6Executor().GetK6BinaryArgs()...,
 	)
 	currentLogger.Debug("Running K6", zap.String("args", fmt.Sprintf("%v", baseArgs)))
 	logger.SetLoggerEnv(
-		logger.LevelFromProtoConfig(runContext.GetConfig().GetLogger().GetLogLevel()),
-		logger.ModeFromProtoConfig(runContext.GetConfig().GetLogger().GetLogMode()),
+		logger.LevelFromProtoConfig(runContext.GetGlobalConfig().GetRun().GetLogger().GetLogLevel()),
+		logger.ModeFromProtoConfig(runContext.GetGlobalConfig().GetRun().GetLogger().GetLogMode()),
 	)
 
 	return runK6Binary(
 		ctx,
 		currentLogger,
-		runContext.GetConfig().GetK6Executor().GetK6BinaryPath(),
+		runContext.GetGlobalConfig().GetRun().GetK6Executor().GetK6BinaryPath(),
 		baseArgs...,
 	)
 }
