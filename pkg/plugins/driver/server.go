@@ -4,9 +4,11 @@ import (
 	"context"
 
 	"github.com/hashicorp/go-plugin"
+	"google.golang.org/grpc"
 	"google.golang.org/protobuf/types/known/emptypb"
 
 	"github.com/stroppy-io/stroppy-core/pkg/logger"
+	"github.com/stroppy-io/stroppy-core/pkg/plugins/streams"
 	stroppy "github.com/stroppy-io/stroppy-core/pkg/proto"
 )
 
@@ -29,18 +31,30 @@ func (s server) Initialize(
 	return &emptypb.Empty{}, s.impl.Initialize(ctx, context)
 }
 
-func (s server) BuildQueries(
+func (s server) BuildTransactionsFromUnit(
 	ctx context.Context,
-	context *stroppy.BuildQueriesContext,
-) (*stroppy.DriverQueriesList, error) {
-	return s.impl.BuildQueries(ctx, context)
+	context *stroppy.UnitBuildContext,
+) (*stroppy.DriverTransactionList, error) {
+	return s.impl.BuildTransactionsFromUnit(ctx, context)
 }
 
-func (s server) RunQuery(
+func (s server) BuildTransactionsFromUnitStream(
+	context *stroppy.UnitBuildContext,
+	stream grpc.ServerStreamingServer[stroppy.DriverTransaction],
+) error {
+	innerStream, err := s.impl.BuildTransactionsFromUnitStream(stream.Context(), context)
+	if err != nil {
+		return err
+	}
+
+	return streams.RestreamServerStreamingServer[stroppy.DriverTransaction](stream, innerStream)
+}
+
+func (s server) RunTransaction(
 	ctx context.Context,
-	query *stroppy.DriverQuery,
+	transaction *stroppy.DriverTransaction,
 ) (*emptypb.Empty, error) {
-	return &emptypb.Empty{}, s.impl.RunQuery(ctx, query)
+	return &emptypb.Empty{}, s.impl.RunTransaction(ctx, transaction)
 }
 
 func (s server) Teardown(

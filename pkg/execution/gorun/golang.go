@@ -3,6 +3,7 @@ package gorun
 import (
 	"context"
 	"errors"
+	"io"
 
 	"go.uber.org/zap"
 
@@ -12,24 +13,19 @@ import (
 	"github.com/stroppy-io/stroppy-core/pkg/utils"
 )
 
-func countQueries(descr *stroppy.StepQueryDescriptor) int {
-	switch descr.GetType().(type) {
-	case *stroppy.StepQueryDescriptor_Query:
-		return int(descr.GetQuery().GetCount()) //nolint: gosec // allow
-	case *stroppy.StepQueryDescriptor_CreateTable:
-		return len(descr.GetCreateTable().GetTableIndexes()) + 1
-	default:
-		return 0
-	}
-}
-
 var (
 	ErrRunContextNil = errors.New("run context is nil")
 	ErrStepNil       = errors.New("step is nil")
 	ErrConfigNil     = errors.New("config is nil")
 )
 
-func RunStep(ctx context.Context, logger *zap.Logger, runContext *stroppy.StepContext) error {
+const minRunTxGoroutines = 2
+
+func RunStep( //nolint: gocognit // allow
+	ctx context.Context,
+	logger *zap.Logger,
+	runContext *stroppy.StepContext,
+) error {
 	if runContext == nil {
 		return ErrRunContextNil
 	}
@@ -38,11 +34,11 @@ func RunStep(ctx context.Context, logger *zap.Logger, runContext *stroppy.StepCo
 		return ErrStepNil
 	}
 
-	if runContext.GetConfig().GetGoExecutor() == nil {
+	if runContext.GetGlobalConfig().GetRun().GetGoExecutor() == nil {
 		return ErrConfigNil
 	}
 
-	drv, drvCancelFn, err := driver.ConnectToPlugin(runContext.GetConfig(), logger)
+	drv, drvCancelFn, err := driver.ConnectToPlugin(runContext.GetGlobalConfig().GetRun(), logger)
 	if err != nil {
 		return err
 	}
@@ -60,33 +56,65 @@ func RunStep(ctx context.Context, logger *zap.Logger, runContext *stroppy.StepCo
 	stepPool := utils.NewAsyncerFromExecType(
 		cancelCtx,
 		runContext.GetStep().GetAsync(),
-		int(runContext.GetConfig().GetGoExecutor().GetGoMaxProc()), //nolint: gosec // allow
-		runContext.GetConfig().GetGoExecutor().GetCancelOnError(),
+		len(runContext.GetStep().GetUnits()),
+		runContext.GetGlobalConfig().GetRun().GetGoExecutor().GetCancelOnError(),
 	)
-
-	for _, queryDesc := range runContext.GetStep().GetQueries() {
+	for _, unitDesc := range runContext.GetStep().GetUnits() {
 		stepPool.Go(func(ctx context.Context) error {
-			queries, err := drv.BuildQueries(ctx, &stroppy.BuildQueriesContext{
+			transactionStream, err := drv.BuildTransactionsFromUnitStream(ctx, &stroppy.UnitBuildContext{
 				Context: runContext,
-				Query:   queryDesc,
+				Unit:    unitDesc,
 			})
 			if err != nil {
 				return err
 			}
 
-			queryPool := utils.NewAsyncerFromExecType(ctx,
-				queryDesc.GetAsync(),
-				countQueries(queryDesc),
-				runContext.GetConfig().GetGoExecutor().GetCancelOnError(),
+			unitPool := utils.NewAsyncerFromExecType(
+				cancelCtx,
+				runContext.GetStep().GetAsync(),
+				// TODO: need count already running pools and set max goroutines?
+				max(
+					int(runContext.GetGlobalConfig().GetRun().GetGoExecutor().GetGoMaxProc()), //nolint: gosec // allow
+					minRunTxGoroutines,
+				),
+				runContext.GetGlobalConfig().GetRun().GetGoExecutor().GetCancelOnError(),
 			)
 
-			for _, query := range queries.GetQueries() {
-				queryPool.Go(func(ctx context.Context) error {
-					return drv.RunQuery(ctx, query)
+			buffChan := make(chan *stroppy.DriverTransaction)
+
+			unitPool.Go(func(_ context.Context) error {
+				defer close(buffChan)
+
+				for {
+					select {
+					case <-ctx.Done():
+						return ctx.Err()
+					default:
+						tx, err := transactionStream.Recv()
+						if err != nil {
+							if errors.Is(err, io.EOF) {
+								return nil
+							}
+
+							return err
+						}
+
+						select {
+						case buffChan <- tx:
+						case <-ctx.Done():
+							return ctx.Err()
+						}
+					}
+				}
+			})
+
+			for tx := range buffChan {
+				unitPool.Go(func(ctx context.Context) error {
+					return drv.RunTransaction(ctx, tx)
 				})
 			}
 
-			return queryPool.Wait()
+			return unitPool.Wait()
 		})
 	}
 
