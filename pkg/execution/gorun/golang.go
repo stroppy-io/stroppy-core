@@ -21,7 +21,7 @@ var (
 
 const minRunTxGoroutines = 2
 
-func RunStep( //nolint: gocognit // allow
+func RunStep(
 	ctx context.Context,
 	logger *zap.Logger,
 	runContext *stroppy.StepContext,
@@ -61,60 +61,7 @@ func RunStep( //nolint: gocognit // allow
 	)
 	for _, unitDesc := range runContext.GetStep().GetUnits() {
 		stepPool.Go(func(ctx context.Context) error {
-			transactionStream, err := drv.BuildTransactionsFromUnitStream(ctx, &stroppy.UnitBuildContext{
-				Context: runContext,
-				Unit:    unitDesc,
-			})
-			if err != nil {
-				return err
-			}
-
-			unitPool := utils.NewAsyncerFromExecType(
-				cancelCtx,
-				runContext.GetStep().GetAsync(),
-				// TODO: need count already running pools and set max goroutines?
-				max(
-					int(runContext.GetGlobalConfig().GetRun().GetGoExecutor().GetGoMaxProc()), //nolint: gosec // allow
-					minRunTxGoroutines,
-				),
-				runContext.GetGlobalConfig().GetRun().GetGoExecutor().GetCancelOnError(),
-			)
-
-			buffChan := make(chan *stroppy.DriverTransaction)
-
-			unitPool.Go(func(_ context.Context) error {
-				defer close(buffChan)
-
-				for {
-					select {
-					case <-ctx.Done():
-						return ctx.Err()
-					default:
-						tx, err := transactionStream.Recv()
-						if err != nil {
-							if errors.Is(err, io.EOF) {
-								return nil
-							}
-
-							return err
-						}
-
-						select {
-						case buffChan <- tx:
-						case <-ctx.Done():
-							return ctx.Err()
-						}
-					}
-				}
-			})
-
-			for tx := range buffChan {
-				unitPool.Go(func(ctx context.Context) error {
-					return drv.RunTransaction(ctx, tx)
-				})
-			}
-
-			return unitPool.Wait()
+			return processUnitTransactions(ctx, drv, runContext, unitDesc)
 		})
 	}
 
@@ -129,4 +76,66 @@ func RunStep( //nolint: gocognit // allow
 	}
 
 	return nil
+}
+
+func processUnitTransactions(
+	ctx context.Context,
+	drv driver.Plugin,
+	runContext *stroppy.StepContext,
+	unitDesc *stroppy.StepUnitDescriptor,
+) error {
+	transactionStream, err := drv.BuildTransactionsFromUnitStream(ctx, &stroppy.UnitBuildContext{
+		Context: runContext,
+		Unit:    unitDesc,
+	})
+	if err != nil {
+		return err
+	}
+
+	unitPool := utils.NewAsyncerFromExecType(
+		ctx,
+		runContext.GetStep().GetAsync(),
+		// TODO: need count already running pools and set max goroutines?
+		max(
+			int(runContext.GetGlobalConfig().GetRun().GetGoExecutor().GetGoMaxProc()), //nolint: gosec // allow
+			minRunTxGoroutines,
+		),
+		runContext.GetGlobalConfig().GetRun().GetGoExecutor().GetCancelOnError(),
+	)
+
+	buffChan := make(chan *stroppy.DriverTransaction)
+
+	unitPool.Go(func(_ context.Context) error {
+		defer close(buffChan)
+
+		for {
+			select {
+			case <-ctx.Done():
+				return ctx.Err()
+			default:
+				tx, err := transactionStream.Recv()
+				if err != nil {
+					if errors.Is(err, io.EOF) {
+						return nil
+					}
+
+					return err
+				}
+
+				select {
+				case buffChan <- tx:
+				case <-ctx.Done():
+					return ctx.Err()
+				}
+			}
+		}
+	})
+
+	for tx := range buffChan {
+		unitPool.Go(func(ctx context.Context) error {
+			return drv.RunTransaction(ctx, tx)
+		})
+	}
+
+	return unitPool.Wait()
 }
