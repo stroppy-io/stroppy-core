@@ -352,6 +352,9 @@ issues:
         - ireturn
         - gocognit
         - gocritic
+        - staticcheck
+        - ineffassign
+        - wastedassign
     # bind is wire config
     - path: "bind.go"
       linters:

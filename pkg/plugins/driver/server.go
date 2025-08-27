@@ -2,14 +2,15 @@ package driver
 
 import (
 	"context"
+	"errors"
 
 	"github.com/hashicorp/go-plugin"
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/types/known/emptypb"
 
 	"github.com/stroppy-io/stroppy-core/pkg/logger"
-	"github.com/stroppy-io/stroppy-core/pkg/plugins/streams"
 	stroppy "github.com/stroppy-io/stroppy-core/pkg/proto"
+	"github.com/stroppy-io/stroppy-core/pkg/utils/errchan"
 )
 
 type server struct {
@@ -47,7 +48,26 @@ func (s server) BuildTransactionsFromUnitStream(
 		return err
 	}
 
-	return streams.RestreamServerStreamingServer[stroppy.DriverTransaction](stream, innerStream)
+	for {
+		select {
+		case <-stream.Context().Done():
+			return nil
+		default:
+			data, err := errchan.Receive[stroppy.DriverTransaction](innerStream)
+			if err != nil {
+				if errors.Is(err, errchan.ErrReceiveClosed) {
+					return nil
+				}
+
+				return err
+			}
+
+			err = stream.Send(data)
+			if err != nil {
+				return err
+			}
+		}
+	}
 }
 
 func (s server) RunTransaction(

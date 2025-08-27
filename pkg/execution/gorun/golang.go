@@ -11,6 +11,7 @@ import (
 	stroppy "github.com/stroppy-io/stroppy-core/pkg/proto"
 	"github.com/stroppy-io/stroppy-core/pkg/shutdown"
 	"github.com/stroppy-io/stroppy-core/pkg/utils"
+	"github.com/stroppy-io/stroppy-core/pkg/utils/errchan"
 )
 
 var (
@@ -84,7 +85,7 @@ func processUnitTransactions(
 	runContext *stroppy.StepContext,
 	unitDesc *stroppy.StepUnitDescriptor,
 ) error {
-	transactionStream, err := drv.BuildTransactionsFromUnitStream(ctx, &stroppy.UnitBuildContext{
+	unitStream, err := drv.BuildTransactionsFromUnitStream(ctx, &stroppy.UnitBuildContext{
 		Context: runContext,
 		Unit:    unitDesc,
 	})
@@ -113,7 +114,7 @@ func processUnitTransactions(
 			case <-ctx.Done():
 				return ctx.Err()
 			default:
-				tx, err := transactionStream.Recv()
+				tx, err := errchan.Receive[stroppy.DriverTransaction](unitStream)
 				if err != nil {
 					if errors.Is(err, io.EOF) {
 						return nil

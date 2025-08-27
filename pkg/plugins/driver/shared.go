@@ -6,8 +6,8 @@ import (
 	"github.com/hashicorp/go-plugin"
 	"google.golang.org/grpc"
 
-	"github.com/stroppy-io/stroppy-core/pkg/plugins/streams"
 	stroppy "github.com/stroppy-io/stroppy-core/pkg/proto"
+	"github.com/stroppy-io/stroppy-core/pkg/utils/errchan"
 )
 
 const (
@@ -33,7 +33,7 @@ type Plugin interface {
 	BuildTransactionsFromUnitStream(
 		ctx context.Context,
 		buildUnitContext *stroppy.UnitBuildContext,
-	) (streams.ServerStream[stroppy.DriverTransaction], error)
+	) (errchan.Chan[stroppy.DriverTransaction], error)
 	RunTransaction(ctx context.Context, transaction *stroppy.DriverTransaction) error
 	Teardown(ctx context.Context) error
 }
