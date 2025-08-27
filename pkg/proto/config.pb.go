@@ -645,12 +645,6 @@ func (x *LoggerConfig) GetLogMode() LoggerConfig_LogMode {
 // It contains the current configuration and descriptors relevant to the step.
 type StepContext struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// * Current run configuration
-	// Deprecated: Marked as deprecated in config.proto.
-	Config *RunConfig `protobuf:"bytes,1,opt,name=config,proto3" json:"config,omitempty"` // deprecated, use global_config.run instead
-	// * Benchmark descriptor
-	// Deprecated: Marked as deprecated in config.proto.
-	Benchmark *BenchmarkDescriptor `protobuf:"bytes,4,opt,name=benchmark,proto3" json:"benchmark,omitempty"` // deprecated, use global_config.benchmark instead
 	// * Current step descriptor
 	Step *StepDescriptor `protobuf:"bytes,5,opt,name=step,proto3" json:"step,omitempty"`
 	// * Global configuration of the benchmark and its steps
@@ -687,22 +681,6 @@ func (x *StepContext) ProtoReflect() protoreflect.Message {
 // Deprecated: Use StepContext.ProtoReflect.Descriptor instead.
 func (*StepContext) Descriptor() ([]byte, []int) {
 	return file_config_proto_rawDescGZIP(), []int{6}
-}
-
-// Deprecated: Marked as deprecated in config.proto.
-func (x *StepContext) GetConfig() *RunConfig {
-	if x != nil {
-		return x.Config
-	}
-	return nil
-}
-
-// Deprecated: Marked as deprecated in config.proto.
-func (x *StepContext) GetBenchmark() *BenchmarkDescriptor {
-	if x != nil {
-		return x.Benchmark
-	}
-	return nil
 }
 
 func (x *StepContext) GetStep() *StepDescriptor {
@@ -1035,10 +1013,8 @@ const file_config_proto_rawDesc = "" +
 	"\x0fLOG_LEVEL_FATAL\x10\x04\"<\n" +
 	"\aLogMode\x12\x18\n" +
 	"\x14LOG_MODE_DEVELOPMENT\x10\x00\x12\x17\n" +
-	"\x13LOG_MODE_PRODUCTION\x10\x01\"\xe0\x01\n" +
-	"\vStepContext\x12.\n" +
-	"\x06config\x18\x01 \x01(\v2\x12.stroppy.RunConfigB\x02\x18\x01R\x06config\x12>\n" +
-	"\tbenchmark\x18\x04 \x01(\v2\x1c.stroppy.BenchmarkDescriptorB\x02\x18\x01R\tbenchmark\x12+\n" +
+	"\x13LOG_MODE_PRODUCTION\x10\x01\"p\n" +
+	"\vStepContext\x12+\n" +
 	"\x04step\x18\x05 \x01(\v2\x17.stroppy.StepDescriptorR\x04step\x124\n" +
 	"\rglobal_config\x18\x06 \x01(\v2\x0f.stroppy.ConfigR\fglobalConfig\"\xcf\x01\n" +
 	"\x06Plugin\x122\n" +
@@ -1101,8 +1077,8 @@ var file_config_proto_goTypes = []any{
 	nil,                             // 14: stroppy.RunConfig.MetadataEntry
 	(*durationpb.Duration)(nil),     // 15: google.protobuf.Duration
 	(*Value_Struct)(nil),            // 16: stroppy.Value.Struct
-	(*BenchmarkDescriptor)(nil),     // 17: stroppy.BenchmarkDescriptor
-	(*StepDescriptor)(nil),          // 18: stroppy.StepDescriptor
+	(*StepDescriptor)(nil),          // 17: stroppy.StepDescriptor
+	(*BenchmarkDescriptor)(nil),     // 18: stroppy.BenchmarkDescriptor
 }
 var file_config_proto_depIdxs = []int32{
 	15, // 0: stroppy.K6Executor.k6_setup_timeout:type_name -> google.protobuf.Duration
@@ -1112,26 +1088,24 @@ var file_config_proto_depIdxs = []int32{
 	0,  // 4: stroppy.RequestedStep.executor:type_name -> stroppy.RequestedStep.ExecutorType
 	1,  // 5: stroppy.LoggerConfig.log_level:type_name -> stroppy.LoggerConfig.LogLevel
 	2,  // 6: stroppy.LoggerConfig.log_mode:type_name -> stroppy.LoggerConfig.LogMode
-	12, // 7: stroppy.StepContext.config:type_name -> stroppy.RunConfig
-	17, // 8: stroppy.StepContext.benchmark:type_name -> stroppy.BenchmarkDescriptor
-	18, // 9: stroppy.StepContext.step:type_name -> stroppy.StepDescriptor
-	13, // 10: stroppy.StepContext.global_config:type_name -> stroppy.Config
-	3,  // 11: stroppy.Plugin.type:type_name -> stroppy.Plugin.Type
-	16, // 12: stroppy.Plugin.settings:type_name -> stroppy.Value.Struct
-	7,  // 13: stroppy.RunConfig.driver:type_name -> stroppy.DriverConfig
-	5,  // 14: stroppy.RunConfig.go_executor:type_name -> stroppy.GoExecutor
-	6,  // 15: stroppy.RunConfig.k6_executor:type_name -> stroppy.K6Executor
-	8,  // 16: stroppy.RunConfig.steps:type_name -> stroppy.RequestedStep
-	9,  // 17: stroppy.RunConfig.logger:type_name -> stroppy.LoggerConfig
-	14, // 18: stroppy.RunConfig.metadata:type_name -> stroppy.RunConfig.MetadataEntry
-	11, // 19: stroppy.RunConfig.plugins:type_name -> stroppy.Plugin
-	12, // 20: stroppy.Config.run:type_name -> stroppy.RunConfig
-	17, // 21: stroppy.Config.benchmark:type_name -> stroppy.BenchmarkDescriptor
-	22, // [22:22] is the sub-list for method output_type
-	22, // [22:22] is the sub-list for method input_type
-	22, // [22:22] is the sub-list for extension type_name
-	22, // [22:22] is the sub-list for extension extendee
-	0,  // [0:22] is the sub-list for field type_name
+	17, // 7: stroppy.StepContext.step:type_name -> stroppy.StepDescriptor
+	13, // 8: stroppy.StepContext.global_config:type_name -> stroppy.Config
+	3,  // 9: stroppy.Plugin.type:type_name -> stroppy.Plugin.Type
+	16, // 10: stroppy.Plugin.settings:type_name -> stroppy.Value.Struct
+	7,  // 11: stroppy.RunConfig.driver:type_name -> stroppy.DriverConfig
+	5,  // 12: stroppy.RunConfig.go_executor:type_name -> stroppy.GoExecutor
+	6,  // 13: stroppy.RunConfig.k6_executor:type_name -> stroppy.K6Executor
+	8,  // 14: stroppy.RunConfig.steps:type_name -> stroppy.RequestedStep
+	9,  // 15: stroppy.RunConfig.logger:type_name -> stroppy.LoggerConfig
+	14, // 16: stroppy.RunConfig.metadata:type_name -> stroppy.RunConfig.MetadataEntry
+	11, // 17: stroppy.RunConfig.plugins:type_name -> stroppy.Plugin
+	12, // 18: stroppy.Config.run:type_name -> stroppy.RunConfig
+	18, // 19: stroppy.Config.benchmark:type_name -> stroppy.BenchmarkDescriptor
+	20, // [20:20] is the sub-list for method output_type
+	20, // [20:20] is the sub-list for method input_type
+	20, // [20:20] is the sub-list for extension type_name
+	20, // [20:20] is the sub-list for extension extendee
+	0,  // [0:20] is the sub-list for field type_name
 }
 
 func init() { file_config_proto_init() }
