@@ -404,15 +404,15 @@ const file_plugins_proto_rawDesc = "" +
 	"\x19BuildTransactionsFromUnit\x12\x19.stroppy.UnitBuildContext\x1a\x1e.stroppy.DriverTransactionList\x12Z\n" +
 	"\x1fBuildTransactionsFromUnitStream\x12\x19.stroppy.UnitBuildContext\x1a\x1a.stroppy.DriverTransaction0\x01\x12D\n" +
 	"\x0eRunTransaction\x12\x1a.stroppy.DriverTransaction\x1a\x16.google.protobuf.Empty\x12:\n" +
-	"\bTeardown\x12\x16.google.protobuf.Empty\x1a\x16.google.protobuf.Empty2\x91\x03\n" +
+	"\bTeardown\x12\x16.google.protobuf.Empty\x1a\x16.google.protobuf.Empty2\x93\x03\n" +
 	"\rSidecarPlugin\x12:\n" +
 	"\n" +
 	"Initialize\x12\x14.stroppy.StepContext\x1a\x16.google.protobuf.Empty\x12;\n" +
 	"\vOnStepStart\x12\x14.stroppy.StepContext\x1a\x16.google.protobuf.Empty\x12J\n" +
 	"\x10OnStepQueryBuild\x12\x1e.stroppy.OnStepQueryBuildEvent\x1a\x16.google.protobuf.Empty\x12F\n" +
 	"\x0eOnStepQueryRun\x12\x1c.stroppy.OnStepQueryRunEvent\x1a\x16.google.protobuf.Empty\x129\n" +
-	"\tOnStepEnd\x12\x14.stroppy.StepContext\x1a\x16.google.protobuf.Empty\x128\n" +
-	"\bTeardown\x12\x14.stroppy.StepContext\x1a\x16.google.protobuf.EmptyB.Z,github.com/stroppy-io/stroppy-core/pkg/protob\x06proto3"
+	"\tOnStepEnd\x12\x14.stroppy.StepContext\x1a\x16.google.protobuf.Empty\x12:\n" +
+	"\bTeardown\x12\x16.google.protobuf.Empty\x1a\x16.google.protobuf.EmptyB.Z,github.com/stroppy-io/stroppy-core/pkg/protob\x06proto3"
 
 var (
 	file_plugins_proto_rawDescOnce sync.Once
@@ -461,7 +461,7 @@ var file_plugins_proto_depIdxs = []int32{
 	4,  // 17: stroppy.SidecarPlugin.OnStepQueryBuild:input_type -> stroppy.OnStepQueryBuildEvent
 	5,  // 18: stroppy.SidecarPlugin.OnStepQueryRun:input_type -> stroppy.OnStepQueryRunEvent
 	6,  // 19: stroppy.SidecarPlugin.OnStepEnd:input_type -> stroppy.StepContext
-	6,  // 20: stroppy.SidecarPlugin.Teardown:input_type -> stroppy.StepContext
+	10, // 20: stroppy.SidecarPlugin.Teardown:input_type -> google.protobuf.Empty
 	10, // 21: stroppy.DriverPlugin.Initialize:output_type -> google.protobuf.Empty
 	3,  // 22: stroppy.DriverPlugin.BuildTransactionsFromUnit:output_type -> stroppy.DriverTransactionList
 	2,  // 23: stroppy.DriverPlugin.BuildTransactionsFromUnitStream:output_type -> stroppy.DriverTransaction

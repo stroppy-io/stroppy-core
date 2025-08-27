@@ -356,7 +356,7 @@ type SidecarPluginClient interface {
 	// *
 	// Teardown is called once after the benchmark ends.
 	// Used to clean up resources.
-	Teardown(ctx context.Context, in *StepContext, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	Teardown(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type sidecarPluginClient struct {
@@ -417,7 +417,7 @@ func (c *sidecarPluginClient) OnStepEnd(ctx context.Context, in *StepContext, op
 	return out, nil
 }
 
-func (c *sidecarPluginClient) Teardown(ctx context.Context, in *StepContext, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (c *sidecarPluginClient) Teardown(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, SidecarPlugin_Teardown_FullMethodName, in, out, cOpts...)
@@ -453,7 +453,7 @@ type SidecarPluginServer interface {
 	// *
 	// Teardown is called once after the benchmark ends.
 	// Used to clean up resources.
-	Teardown(context.Context, *StepContext) (*emptypb.Empty, error)
+	Teardown(context.Context, *emptypb.Empty) (*emptypb.Empty, error)
 	mustEmbedUnimplementedSidecarPluginServer()
 }
 
@@ -479,7 +479,7 @@ func (UnimplementedSidecarPluginServer) OnStepQueryRun(context.Context, *OnStepQ
 func (UnimplementedSidecarPluginServer) OnStepEnd(context.Context, *StepContext) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method OnStepEnd not implemented")
 }
-func (UnimplementedSidecarPluginServer) Teardown(context.Context, *StepContext) (*emptypb.Empty, error) {
+func (UnimplementedSidecarPluginServer) Teardown(context.Context, *emptypb.Empty) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Teardown not implemented")
 }
 func (UnimplementedSidecarPluginServer) mustEmbedUnimplementedSidecarPluginServer() {}
@@ -594,7 +594,7 @@ func _SidecarPlugin_OnStepEnd_Handler(srv interface{}, ctx context.Context, dec 
 }
 
 func _SidecarPlugin_Teardown_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(StepContext)
+	in := new(emptypb.Empty)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -606,7 +606,7 @@ func _SidecarPlugin_Teardown_Handler(srv interface{}, ctx context.Context, dec f
 		FullMethod: SidecarPlugin_Teardown_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SidecarPluginServer).Teardown(ctx, req.(*StepContext))
+		return srv.(SidecarPluginServer).Teardown(ctx, req.(*emptypb.Empty))
 	}
 	return interceptor(ctx, in, info, handler)
 }
