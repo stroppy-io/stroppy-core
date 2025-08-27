@@ -2,6 +2,8 @@ package driver
 
 import (
 	"context"
+	"errors"
+	"io"
 	"os"
 	"os/exec"
 	"strings"
@@ -11,8 +13,8 @@ import (
 	"google.golang.org/protobuf/types/known/emptypb"
 
 	"github.com/stroppy-io/stroppy-core/pkg/logger"
-	"github.com/stroppy-io/stroppy-core/pkg/plugins/streams"
 	stroppy "github.com/stroppy-io/stroppy-core/pkg/proto"
+	"github.com/stroppy-io/stroppy-core/pkg/utils/errchan"
 )
 
 type client struct {
@@ -48,13 +50,39 @@ func (d *client) BuildTransactionsFromUnit(
 func (d *client) BuildTransactionsFromUnitStream(
 	ctx context.Context,
 	buildUnitContext *stroppy.UnitBuildContext,
-) (streams.ServerStream[stroppy.DriverTransaction], error) {
+) (errchan.Chan[stroppy.DriverTransaction], error) {
 	stream, err := d.protoClient.BuildTransactionsFromUnitStream(ctx, buildUnitContext)
 	if err != nil {
 		return nil, err
 	}
 
-	return streams.WrapServerStreamingClient(stream), nil
+	channel := make(errchan.Chan[stroppy.DriverTransaction])
+
+	go func() {
+		for {
+			select {
+			case <-ctx.Done():
+				errchan.Close[stroppy.DriverTransaction](channel)
+
+				return
+			default:
+				data, err := stream.Recv()
+				if err != nil {
+					if errors.Is(err, io.EOF) {
+						return
+					}
+
+					errchan.Send[stroppy.DriverTransaction](channel, nil, err)
+
+					return
+				}
+
+				errchan.Send[stroppy.DriverTransaction](channel, data, nil)
+			}
+		}
+	}()
+
+	return channel, nil
 }
 
 func (d *client) RunTransaction(
