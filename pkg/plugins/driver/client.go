@@ -63,6 +63,7 @@ func (d *client) BuildTransactionsFromUnitStream(
 			select {
 			case <-ctx.Done():
 			    errchan.Close[stroppy.DriverTransaction](channel)
+				
 				return
 			default:
 				data, err := stream.Recv()
