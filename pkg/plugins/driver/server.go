@@ -9,6 +9,7 @@ import (
 	"google.golang.org/protobuf/types/known/emptypb"
 
 	"github.com/stroppy-io/stroppy-core/pkg/logger"
+	"github.com/stroppy-io/stroppy-core/pkg/plugins/common"
 	stroppy "github.com/stroppy-io/stroppy-core/pkg/proto"
 	"github.com/stroppy-io/stroppy-core/pkg/utils/errchan"
 )
@@ -92,6 +93,6 @@ func ServePlugin(impl Plugin) {
 		},
 		// A non-nil value here enables gRPC serving for this plugin...
 		GRPCServer: plugin.DefaultGRPCServer,
-		Logger:     NewLogger(logger.NewFromEnv()),
+		Logger:     common.NewLogger(logger.NewFromEnv()),
 	})
 }
