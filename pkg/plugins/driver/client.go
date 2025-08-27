@@ -60,11 +60,11 @@ func (d *client) BuildTransactionsFromUnitStream(
 	channel := make(errchan.Chan[stroppy.DriverTransaction])
 
 	go func() {
+		defer errchan.Close[stroppy.DriverTransaction](channel)
+
 		for {
 			select {
 			case <-ctx.Done():
-				errchan.Close[stroppy.DriverTransaction](channel)
-
 				return
 			default:
 				data, err := stream.Recv()

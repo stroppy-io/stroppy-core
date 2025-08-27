@@ -50,23 +50,18 @@ func (s server) BuildTransactionsFromUnitStream(
 	}
 
 	for {
-		select {
-		case <-stream.Context().Done():
-			return nil
-		default:
-			data, err := errchan.Receive[stroppy.DriverTransaction](innerStream)
-			if err != nil {
-				if errors.Is(err, errchan.ErrReceiveClosed) {
-					return nil
-				}
-
-				return err
+		data, err := errchan.ReceiveCtx[stroppy.DriverTransaction](stream.Context(), innerStream)
+		if err != nil {
+			if errors.Is(err, errchan.ErrReceiveClosed) {
+				return nil
 			}
 
-			err = stream.Send(data)
-			if err != nil {
-				return err
-			}
+			return err
+		}
+
+		err = stream.Send(data)
+		if err != nil {
+			return err
 		}
 	}
 }

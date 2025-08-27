@@ -1,6 +1,7 @@
 package errchan
 
 import (
+	"context"
 	"errors"
 )
 
@@ -46,11 +47,53 @@ func Receive[T any](ch Chan[T]) (*T, error) {
 	return rec.Get()
 }
 
+func ReceiveCtx[T any](ctx context.Context, ch Chan[T]) (*T, error) {
+	// fast-path
+	select {
+	case rec, ok := <-ch:
+		if !ok {
+			return nil, ErrReceiveClosed
+		}
+
+		return rec.Get()
+	default:
+	}
+
+	// default-path
+	select {
+	case rec, ok := <-ch:
+		if !ok {
+			return nil, ErrReceiveClosed
+		}
+
+		return rec.Get()
+	case <-ctx.Done():
+		return nil, ctx.Err()
+	}
+}
+
 func Collect[T any](ch Chan[T]) ([]*T, error) {
 	result := make([]*T, 0)
 
 	for {
 		data, err := Receive[T](ch)
+		if err != nil {
+			if errors.Is(err, ErrReceiveClosed) {
+				return result, nil
+			}
+
+			return nil, err
+		}
+
+		result = append(result, data)
+	}
+}
+
+func CollectCtx[T any](ctx context.Context, ch Chan[T]) ([]*T, error) {
+	result := make([]*T, 0)
+
+	for {
+		data, err := ReceiveCtx[T](ctx, ch)
 		if err != nil {
 			if errors.Is(err, ErrReceiveClosed) {
 				return result, nil
