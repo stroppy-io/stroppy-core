@@ -2,8 +2,6 @@ package driver
 
 import (
 	"context"
-	"errors"
-	"io"
 	"os"
 	"os/exec"
 	"strings"
@@ -15,17 +13,16 @@ import (
 	"github.com/stroppy-io/stroppy-core/pkg/logger"
 	"github.com/stroppy-io/stroppy-core/pkg/plugins/common"
 	stroppy "github.com/stroppy-io/stroppy-core/pkg/proto"
-	"github.com/stroppy-io/stroppy-core/pkg/utils/errchan"
 )
 
 type client struct {
 	lg          *zap.Logger
-	protoClient stroppy.DriverPluginClient
+	protoClient stroppy.SidecarPluginClient
 }
 
-const driverClientLoggerName = "driver-plugin-client"
+const driverClientLoggerName = "sidecar-plugin-client"
 
-func newDriverClient(protoClient stroppy.DriverPluginClient) *client {
+func newDriverClient(protoClient stroppy.SidecarPluginClient) *client {
 	return &client{
 		lg:          logger.NewStructLogger(driverClientLoggerName),
 		protoClient: protoClient,
@@ -41,56 +38,20 @@ func (d *client) Initialize(
 	return err
 }
 
-func (d *client) BuildTransactionsFromUnit(
+func (d *client) OnStepStart(
 	ctx context.Context,
-	buildUnitContext *stroppy.UnitBuildContext,
-) (*stroppy.DriverTransactionList, error) {
-	return d.protoClient.BuildTransactionsFromUnit(ctx, buildUnitContext)
-}
-
-func (d *client) BuildTransactionsFromUnitStream(
-	ctx context.Context,
-	buildUnitContext *stroppy.UnitBuildContext,
-) (errchan.Chan[stroppy.DriverTransaction], error) {
-	stream, err := d.protoClient.BuildTransactionsFromUnitStream(ctx, buildUnitContext)
-	if err != nil {
-		return nil, err
-	}
-
-	channel := make(errchan.Chan[stroppy.DriverTransaction])
-
-	go func() {
-		for {
-			select {
-			case <-ctx.Done():
-				errchan.Close[stroppy.DriverTransaction](channel)
-
-				return
-			default:
-				data, err := stream.Recv()
-				if err != nil {
-					if errors.Is(err, io.EOF) {
-						return
-					}
-
-					errchan.Send[stroppy.DriverTransaction](channel, nil, err)
-
-					return
-				}
-
-				errchan.Send[stroppy.DriverTransaction](channel, data, nil)
-			}
-		}
-	}()
-
-	return channel, nil
-}
-
-func (d *client) RunTransaction(
-	ctx context.Context,
-	transaction *stroppy.DriverTransaction,
+	event *stroppy.StepContext,
 ) error {
-	_, err := d.protoClient.RunTransaction(ctx, transaction)
+	_, err := d.protoClient.OnStepStart(ctx, event)
+
+	return err
+}
+
+func (d *client) OnStepEnd(
+	ctx context.Context,
+	event *stroppy.StepContext,
+) error {
+	_, err := d.protoClient.OnStepEnd(ctx, event)
 
 	return err
 }
