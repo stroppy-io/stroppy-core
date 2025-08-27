@@ -238,138 +238,6 @@ func (x *DriverTransactionList) GetTransactions() []*DriverTransaction {
 	return nil
 }
 
-type OnStepQueryBuildEvent struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// *
-	// Context contains the information needed to build a transaction from a unit.
-	Context *UnitBuildContext `protobuf:"bytes,1,opt,name=context,proto3" json:"context,omitempty"`
-	// *
-	// The list of transactions was built from the StepUnitDescriptor
-	TransactionList *DriverTransactionList `protobuf:"bytes,2,opt,name=transaction_list,json=transactionList,proto3,oneof" json:"transaction_list,omitempty"`
-	// *
-	// Error is an optional error message
-	Error         *string `protobuf:"bytes,3,opt,name=error,proto3,oneof" json:"error,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *OnStepQueryBuildEvent) Reset() {
-	*x = OnStepQueryBuildEvent{}
-	mi := &file_plugins_proto_msgTypes[4]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *OnStepQueryBuildEvent) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*OnStepQueryBuildEvent) ProtoMessage() {}
-
-func (x *OnStepQueryBuildEvent) ProtoReflect() protoreflect.Message {
-	mi := &file_plugins_proto_msgTypes[4]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use OnStepQueryBuildEvent.ProtoReflect.Descriptor instead.
-func (*OnStepQueryBuildEvent) Descriptor() ([]byte, []int) {
-	return file_plugins_proto_rawDescGZIP(), []int{4}
-}
-
-func (x *OnStepQueryBuildEvent) GetContext() *UnitBuildContext {
-	if x != nil {
-		return x.Context
-	}
-	return nil
-}
-
-func (x *OnStepQueryBuildEvent) GetTransactionList() *DriverTransactionList {
-	if x != nil {
-		return x.TransactionList
-	}
-	return nil
-}
-
-func (x *OnStepQueryBuildEvent) GetError() string {
-	if x != nil && x.Error != nil {
-		return *x.Error
-	}
-	return ""
-}
-
-type OnStepQueryRunEvent struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// *
-	// Context contains the step context and the step query descriptor
-	Context *StepContext `protobuf:"bytes,1,opt,name=context,proto3" json:"context,omitempty"`
-	// *
-	// Query is the query to run
-	Query *DriverQuery `protobuf:"bytes,2,opt,name=query,proto3" json:"query,omitempty"`
-	// *
-	// Error is an optional error message
-	Error         *string `protobuf:"bytes,3,opt,name=error,proto3,oneof" json:"error,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *OnStepQueryRunEvent) Reset() {
-	*x = OnStepQueryRunEvent{}
-	mi := &file_plugins_proto_msgTypes[5]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *OnStepQueryRunEvent) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*OnStepQueryRunEvent) ProtoMessage() {}
-
-func (x *OnStepQueryRunEvent) ProtoReflect() protoreflect.Message {
-	mi := &file_plugins_proto_msgTypes[5]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use OnStepQueryRunEvent.ProtoReflect.Descriptor instead.
-func (*OnStepQueryRunEvent) Descriptor() ([]byte, []int) {
-	return file_plugins_proto_rawDescGZIP(), []int{5}
-}
-
-func (x *OnStepQueryRunEvent) GetContext() *StepContext {
-	if x != nil {
-		return x.Context
-	}
-	return nil
-}
-
-func (x *OnStepQueryRunEvent) GetQuery() *DriverQuery {
-	if x != nil {
-		return x.Query
-	}
-	return nil
-}
-
-func (x *OnStepQueryRunEvent) GetError() string {
-	if x != nil && x.Error != nil {
-		return *x.Error
-	}
-	return ""
-}
-
 var File_plugins_proto protoreflect.FileDescriptor
 
 const file_plugins_proto_rawDesc = "" +
@@ -386,31 +254,18 @@ const file_plugins_proto_rawDesc = "" +
 	"\aqueries\x18\x01 \x03(\v2\x14.stroppy.DriverQueryR\aqueries\x12B\n" +
 	"\x0fisolation_level\x18\x02 \x01(\x0e2\x19.stroppy.TxIsolationLevelR\x0eisolationLevel\"W\n" +
 	"\x15DriverTransactionList\x12>\n" +
-	"\ftransactions\x18\x01 \x03(\v2\x1a.stroppy.DriverTransactionR\ftransactions\"\xd6\x01\n" +
-	"\x15OnStepQueryBuildEvent\x123\n" +
-	"\acontext\x18\x01 \x01(\v2\x19.stroppy.UnitBuildContextR\acontext\x12N\n" +
-	"\x10transaction_list\x18\x02 \x01(\v2\x1e.stroppy.DriverTransactionListH\x00R\x0ftransactionList\x88\x01\x01\x12\x19\n" +
-	"\x05error\x18\x03 \x01(\tH\x01R\x05error\x88\x01\x01B\x13\n" +
-	"\x11_transaction_listB\b\n" +
-	"\x06_error\"\x96\x01\n" +
-	"\x13OnStepQueryRunEvent\x12.\n" +
-	"\acontext\x18\x01 \x01(\v2\x14.stroppy.StepContextR\acontext\x12*\n" +
-	"\x05query\x18\x02 \x01(\v2\x14.stroppy.DriverQueryR\x05query\x12\x19\n" +
-	"\x05error\x18\x03 \x01(\tH\x00R\x05error\x88\x01\x01B\b\n" +
-	"\x06_error2\x80\x03\n" +
+	"\ftransactions\x18\x01 \x03(\v2\x1a.stroppy.DriverTransactionR\ftransactions2\x80\x03\n" +
 	"\fDriverPlugin\x12:\n" +
 	"\n" +
 	"Initialize\x12\x14.stroppy.StepContext\x1a\x16.google.protobuf.Empty\x12V\n" +
 	"\x19BuildTransactionsFromUnit\x12\x19.stroppy.UnitBuildContext\x1a\x1e.stroppy.DriverTransactionList\x12Z\n" +
 	"\x1fBuildTransactionsFromUnitStream\x12\x19.stroppy.UnitBuildContext\x1a\x1a.stroppy.DriverTransaction0\x01\x12D\n" +
 	"\x0eRunTransaction\x12\x1a.stroppy.DriverTransaction\x1a\x16.google.protobuf.Empty\x12:\n" +
-	"\bTeardown\x12\x16.google.protobuf.Empty\x1a\x16.google.protobuf.Empty2\x93\x03\n" +
+	"\bTeardown\x12\x16.google.protobuf.Empty\x1a\x16.google.protobuf.Empty2\xff\x01\n" +
 	"\rSidecarPlugin\x12:\n" +
 	"\n" +
 	"Initialize\x12\x14.stroppy.StepContext\x1a\x16.google.protobuf.Empty\x12;\n" +
-	"\vOnStepStart\x12\x14.stroppy.StepContext\x1a\x16.google.protobuf.Empty\x12J\n" +
-	"\x10OnStepQueryBuild\x12\x1e.stroppy.OnStepQueryBuildEvent\x1a\x16.google.protobuf.Empty\x12F\n" +
-	"\x0eOnStepQueryRun\x12\x1c.stroppy.OnStepQueryRunEvent\x1a\x16.google.protobuf.Empty\x129\n" +
+	"\vOnStepStart\x12\x14.stroppy.StepContext\x1a\x16.google.protobuf.Empty\x129\n" +
 	"\tOnStepEnd\x12\x14.stroppy.StepContext\x1a\x16.google.protobuf.Empty\x12:\n" +
 	"\bTeardown\x12\x16.google.protobuf.Empty\x1a\x16.google.protobuf.EmptyB.Z,github.com/stroppy-io/stroppy-core/pkg/protob\x06proto3"
 
@@ -426,58 +281,48 @@ func file_plugins_proto_rawDescGZIP() []byte {
 	return file_plugins_proto_rawDescData
 }
 
-var file_plugins_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
+var file_plugins_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
 var file_plugins_proto_goTypes = []any{
 	(*UnitBuildContext)(nil),      // 0: stroppy.UnitBuildContext
 	(*DriverQuery)(nil),           // 1: stroppy.DriverQuery
 	(*DriverTransaction)(nil),     // 2: stroppy.DriverTransaction
 	(*DriverTransactionList)(nil), // 3: stroppy.DriverTransactionList
-	(*OnStepQueryBuildEvent)(nil), // 4: stroppy.OnStepQueryBuildEvent
-	(*OnStepQueryRunEvent)(nil),   // 5: stroppy.OnStepQueryRunEvent
-	(*StepContext)(nil),           // 6: stroppy.StepContext
-	(*StepUnitDescriptor)(nil),    // 7: stroppy.StepUnitDescriptor
-	(*Value)(nil),                 // 8: stroppy.Value
-	(TxIsolationLevel)(0),         // 9: stroppy.TxIsolationLevel
-	(*emptypb.Empty)(nil),         // 10: google.protobuf.Empty
+	(*StepContext)(nil),           // 4: stroppy.StepContext
+	(*StepUnitDescriptor)(nil),    // 5: stroppy.StepUnitDescriptor
+	(*Value)(nil),                 // 6: stroppy.Value
+	(TxIsolationLevel)(0),         // 7: stroppy.TxIsolationLevel
+	(*emptypb.Empty)(nil),         // 8: google.protobuf.Empty
 }
 var file_plugins_proto_depIdxs = []int32{
-	6,  // 0: stroppy.UnitBuildContext.context:type_name -> stroppy.StepContext
-	7,  // 1: stroppy.UnitBuildContext.unit:type_name -> stroppy.StepUnitDescriptor
-	8,  // 2: stroppy.DriverQuery.params:type_name -> stroppy.Value
+	4,  // 0: stroppy.UnitBuildContext.context:type_name -> stroppy.StepContext
+	5,  // 1: stroppy.UnitBuildContext.unit:type_name -> stroppy.StepUnitDescriptor
+	6,  // 2: stroppy.DriverQuery.params:type_name -> stroppy.Value
 	1,  // 3: stroppy.DriverTransaction.queries:type_name -> stroppy.DriverQuery
-	9,  // 4: stroppy.DriverTransaction.isolation_level:type_name -> stroppy.TxIsolationLevel
+	7,  // 4: stroppy.DriverTransaction.isolation_level:type_name -> stroppy.TxIsolationLevel
 	2,  // 5: stroppy.DriverTransactionList.transactions:type_name -> stroppy.DriverTransaction
-	0,  // 6: stroppy.OnStepQueryBuildEvent.context:type_name -> stroppy.UnitBuildContext
-	3,  // 7: stroppy.OnStepQueryBuildEvent.transaction_list:type_name -> stroppy.DriverTransactionList
-	6,  // 8: stroppy.OnStepQueryRunEvent.context:type_name -> stroppy.StepContext
-	1,  // 9: stroppy.OnStepQueryRunEvent.query:type_name -> stroppy.DriverQuery
-	6,  // 10: stroppy.DriverPlugin.Initialize:input_type -> stroppy.StepContext
-	0,  // 11: stroppy.DriverPlugin.BuildTransactionsFromUnit:input_type -> stroppy.UnitBuildContext
-	0,  // 12: stroppy.DriverPlugin.BuildTransactionsFromUnitStream:input_type -> stroppy.UnitBuildContext
-	2,  // 13: stroppy.DriverPlugin.RunTransaction:input_type -> stroppy.DriverTransaction
-	10, // 14: stroppy.DriverPlugin.Teardown:input_type -> google.protobuf.Empty
-	6,  // 15: stroppy.SidecarPlugin.Initialize:input_type -> stroppy.StepContext
-	6,  // 16: stroppy.SidecarPlugin.OnStepStart:input_type -> stroppy.StepContext
-	4,  // 17: stroppy.SidecarPlugin.OnStepQueryBuild:input_type -> stroppy.OnStepQueryBuildEvent
-	5,  // 18: stroppy.SidecarPlugin.OnStepQueryRun:input_type -> stroppy.OnStepQueryRunEvent
-	6,  // 19: stroppy.SidecarPlugin.OnStepEnd:input_type -> stroppy.StepContext
-	10, // 20: stroppy.SidecarPlugin.Teardown:input_type -> google.protobuf.Empty
-	10, // 21: stroppy.DriverPlugin.Initialize:output_type -> google.protobuf.Empty
-	3,  // 22: stroppy.DriverPlugin.BuildTransactionsFromUnit:output_type -> stroppy.DriverTransactionList
-	2,  // 23: stroppy.DriverPlugin.BuildTransactionsFromUnitStream:output_type -> stroppy.DriverTransaction
-	10, // 24: stroppy.DriverPlugin.RunTransaction:output_type -> google.protobuf.Empty
-	10, // 25: stroppy.DriverPlugin.Teardown:output_type -> google.protobuf.Empty
-	10, // 26: stroppy.SidecarPlugin.Initialize:output_type -> google.protobuf.Empty
-	10, // 27: stroppy.SidecarPlugin.OnStepStart:output_type -> google.protobuf.Empty
-	10, // 28: stroppy.SidecarPlugin.OnStepQueryBuild:output_type -> google.protobuf.Empty
-	10, // 29: stroppy.SidecarPlugin.OnStepQueryRun:output_type -> google.protobuf.Empty
-	10, // 30: stroppy.SidecarPlugin.OnStepEnd:output_type -> google.protobuf.Empty
-	10, // 31: stroppy.SidecarPlugin.Teardown:output_type -> google.protobuf.Empty
-	21, // [21:32] is the sub-list for method output_type
-	10, // [10:21] is the sub-list for method input_type
-	10, // [10:10] is the sub-list for extension type_name
-	10, // [10:10] is the sub-list for extension extendee
-	0,  // [0:10] is the sub-list for field type_name
+	4,  // 6: stroppy.DriverPlugin.Initialize:input_type -> stroppy.StepContext
+	0,  // 7: stroppy.DriverPlugin.BuildTransactionsFromUnit:input_type -> stroppy.UnitBuildContext
+	0,  // 8: stroppy.DriverPlugin.BuildTransactionsFromUnitStream:input_type -> stroppy.UnitBuildContext
+	2,  // 9: stroppy.DriverPlugin.RunTransaction:input_type -> stroppy.DriverTransaction
+	8,  // 10: stroppy.DriverPlugin.Teardown:input_type -> google.protobuf.Empty
+	4,  // 11: stroppy.SidecarPlugin.Initialize:input_type -> stroppy.StepContext
+	4,  // 12: stroppy.SidecarPlugin.OnStepStart:input_type -> stroppy.StepContext
+	4,  // 13: stroppy.SidecarPlugin.OnStepEnd:input_type -> stroppy.StepContext
+	8,  // 14: stroppy.SidecarPlugin.Teardown:input_type -> google.protobuf.Empty
+	8,  // 15: stroppy.DriverPlugin.Initialize:output_type -> google.protobuf.Empty
+	3,  // 16: stroppy.DriverPlugin.BuildTransactionsFromUnit:output_type -> stroppy.DriverTransactionList
+	2,  // 17: stroppy.DriverPlugin.BuildTransactionsFromUnitStream:output_type -> stroppy.DriverTransaction
+	8,  // 18: stroppy.DriverPlugin.RunTransaction:output_type -> google.protobuf.Empty
+	8,  // 19: stroppy.DriverPlugin.Teardown:output_type -> google.protobuf.Empty
+	8,  // 20: stroppy.SidecarPlugin.Initialize:output_type -> google.protobuf.Empty
+	8,  // 21: stroppy.SidecarPlugin.OnStepStart:output_type -> google.protobuf.Empty
+	8,  // 22: stroppy.SidecarPlugin.OnStepEnd:output_type -> google.protobuf.Empty
+	8,  // 23: stroppy.SidecarPlugin.Teardown:output_type -> google.protobuf.Empty
+	15, // [15:24] is the sub-list for method output_type
+	6,  // [6:15] is the sub-list for method input_type
+	6,  // [6:6] is the sub-list for extension type_name
+	6,  // [6:6] is the sub-list for extension extendee
+	0,  // [0:6] is the sub-list for field type_name
 }
 
 func init() { file_plugins_proto_init() }
@@ -488,15 +333,13 @@ func file_plugins_proto_init() {
 	file_common_proto_init()
 	file_config_proto_init()
 	file_descriptor_proto_init()
-	file_plugins_proto_msgTypes[4].OneofWrappers = []any{}
-	file_plugins_proto_msgTypes[5].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_plugins_proto_rawDesc), len(file_plugins_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   6,
+			NumMessages:   4,
 			NumExtensions: 0,
 			NumServices:   2,
 		},
