@@ -322,12 +322,10 @@ var DriverPlugin_ServiceDesc = grpc.ServiceDesc{
 }
 
 const (
-	SidecarPlugin_Initialize_FullMethodName       = "/stroppy.SidecarPlugin/Initialize"
-	SidecarPlugin_OnStepStart_FullMethodName      = "/stroppy.SidecarPlugin/OnStepStart"
-	SidecarPlugin_OnStepQueryBuild_FullMethodName = "/stroppy.SidecarPlugin/OnStepQueryBuild"
-	SidecarPlugin_OnStepQueryRun_FullMethodName   = "/stroppy.SidecarPlugin/OnStepQueryRun"
-	SidecarPlugin_OnStepEnd_FullMethodName        = "/stroppy.SidecarPlugin/OnStepEnd"
-	SidecarPlugin_Teardown_FullMethodName         = "/stroppy.SidecarPlugin/Teardown"
+	SidecarPlugin_Initialize_FullMethodName  = "/stroppy.SidecarPlugin/Initialize"
+	SidecarPlugin_OnStepStart_FullMethodName = "/stroppy.SidecarPlugin/OnStepStart"
+	SidecarPlugin_OnStepEnd_FullMethodName   = "/stroppy.SidecarPlugin/OnStepEnd"
+	SidecarPlugin_Teardown_FullMethodName    = "/stroppy.SidecarPlugin/Teardown"
 )
 
 // SidecarPluginClient is the client API for SidecarPlugin service.
@@ -344,12 +342,6 @@ type SidecarPluginClient interface {
 	// *
 	// OnStepStart is called once before each step starts.
 	OnStepStart(ctx context.Context, in *StepContext, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	// *
-	// OnStepQuery is called after driver BuildQueries is called.
-	OnStepQueryBuild(ctx context.Context, in *OnStepQueryBuildEvent, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	// *
-	// OnStepQueryRun is called after driver RunQuery is called.
-	OnStepQueryRun(ctx context.Context, in *OnStepQueryRunEvent, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// *
 	// OnStepEnd is called once after each step ends.
 	OnStepEnd(ctx context.Context, in *StepContext, opts ...grpc.CallOption) (*emptypb.Empty, error)
@@ -381,26 +373,6 @@ func (c *sidecarPluginClient) OnStepStart(ctx context.Context, in *StepContext, 
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, SidecarPlugin_OnStepStart_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *sidecarPluginClient) OnStepQueryBuild(ctx context.Context, in *OnStepQueryBuildEvent, opts ...grpc.CallOption) (*emptypb.Empty, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, SidecarPlugin_OnStepQueryBuild_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *sidecarPluginClient) OnStepQueryRun(ctx context.Context, in *OnStepQueryRunEvent, opts ...grpc.CallOption) (*emptypb.Empty, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, SidecarPlugin_OnStepQueryRun_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -442,12 +414,6 @@ type SidecarPluginServer interface {
 	// OnStepStart is called once before each step starts.
 	OnStepStart(context.Context, *StepContext) (*emptypb.Empty, error)
 	// *
-	// OnStepQuery is called after driver BuildQueries is called.
-	OnStepQueryBuild(context.Context, *OnStepQueryBuildEvent) (*emptypb.Empty, error)
-	// *
-	// OnStepQueryRun is called after driver RunQuery is called.
-	OnStepQueryRun(context.Context, *OnStepQueryRunEvent) (*emptypb.Empty, error)
-	// *
 	// OnStepEnd is called once after each step ends.
 	OnStepEnd(context.Context, *StepContext) (*emptypb.Empty, error)
 	// *
@@ -469,12 +435,6 @@ func (UnimplementedSidecarPluginServer) Initialize(context.Context, *StepContext
 }
 func (UnimplementedSidecarPluginServer) OnStepStart(context.Context, *StepContext) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method OnStepStart not implemented")
-}
-func (UnimplementedSidecarPluginServer) OnStepQueryBuild(context.Context, *OnStepQueryBuildEvent) (*emptypb.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method OnStepQueryBuild not implemented")
-}
-func (UnimplementedSidecarPluginServer) OnStepQueryRun(context.Context, *OnStepQueryRunEvent) (*emptypb.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method OnStepQueryRun not implemented")
 }
 func (UnimplementedSidecarPluginServer) OnStepEnd(context.Context, *StepContext) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method OnStepEnd not implemented")
@@ -539,42 +499,6 @@ func _SidecarPlugin_OnStepStart_Handler(srv interface{}, ctx context.Context, de
 	return interceptor(ctx, in, info, handler)
 }
 
-func _SidecarPlugin_OnStepQueryBuild_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(OnStepQueryBuildEvent)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(SidecarPluginServer).OnStepQueryBuild(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: SidecarPlugin_OnStepQueryBuild_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SidecarPluginServer).OnStepQueryBuild(ctx, req.(*OnStepQueryBuildEvent))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _SidecarPlugin_OnStepQueryRun_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(OnStepQueryRunEvent)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(SidecarPluginServer).OnStepQueryRun(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: SidecarPlugin_OnStepQueryRun_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SidecarPluginServer).OnStepQueryRun(ctx, req.(*OnStepQueryRunEvent))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 func _SidecarPlugin_OnStepEnd_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(StepContext)
 	if err := dec(in); err != nil {
@@ -625,14 +549,6 @@ var SidecarPlugin_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "OnStepStart",
 			Handler:    _SidecarPlugin_OnStepStart_Handler,
-		},
-		{
-			MethodName: "OnStepQueryBuild",
-			Handler:    _SidecarPlugin_OnStepQueryBuild_Handler,
-		},
-		{
-			MethodName: "OnStepQueryRun",
-			Handler:    _SidecarPlugin_OnStepQueryRun_Handler,
 		},
 		{
 			MethodName: "OnStepEnd",
