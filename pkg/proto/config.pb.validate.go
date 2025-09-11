@@ -61,6 +61,18 @@ func (m *OtlpExport) validate(all bool) error {
 		// no validation rules for OtlpGrpcEndpoint
 	}
 
+	if m.OtlpHttpEndpoint != nil {
+		// no validation rules for OtlpHttpEndpoint
+	}
+
+	if m.OtlpHttpExporterUrlPath != nil {
+		// no validation rules for OtlpHttpExporterUrlPath
+	}
+
+	if m.OtlpEndpointInsecure != nil {
+		// no validation rules for OtlpEndpointInsecure
+	}
+
 	if m.OtlpMetricsPrefix != nil {
 		// no validation rules for OtlpMetricsPrefix
 	}
