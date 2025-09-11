@@ -223,6 +223,12 @@ type OtlpExport struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// * gRPC endpoint for OpenTelemetry collector
 	OtlpGrpcEndpoint *string `protobuf:"bytes,1,opt,name=otlp_grpc_endpoint,json=otlpGrpcEndpoint,proto3,oneof" json:"otlp_grpc_endpoint,omitempty"`
+	// * HTTP endpoint for the OpenTelemetry collector
+	OtlpHttpEndpoint *string `protobuf:"bytes,3,opt,name=otlp_http_endpoint,json=otlpHttpEndpoint,proto3,oneof" json:"otlp_http_endpoint,omitempty"`
+	// * HTTP exporter path. Default is '/v1/metrics'
+	OtlpHttpExporterUrlPath *string `protobuf:"bytes,4,opt,name=otlp_http_exporter_url_path,json=otlpHttpExporterUrlPath,proto3,oneof" json:"otlp_http_exporter_url_path,omitempty"`
+	// * Disable transport security for the exporter
+	OtlpEndpointInsecure *bool `protobuf:"varint,5,opt,name=otlp_endpoint_insecure,json=otlpEndpointInsecure,proto3,oneof" json:"otlp_endpoint_insecure,omitempty"`
 	// * Prefix to be added to all exported metrics
 	OtlpMetricsPrefix *string `protobuf:"bytes,2,opt,name=otlp_metrics_prefix,json=otlpMetricsPrefix,proto3,oneof" json:"otlp_metrics_prefix,omitempty"`
 	unknownFields     protoimpl.UnknownFields
@@ -264,6 +270,27 @@ func (x *OtlpExport) GetOtlpGrpcEndpoint() string {
 		return *x.OtlpGrpcEndpoint
 	}
 	return ""
+}
+
+func (x *OtlpExport) GetOtlpHttpEndpoint() string {
+	if x != nil && x.OtlpHttpEndpoint != nil {
+		return *x.OtlpHttpEndpoint
+	}
+	return ""
+}
+
+func (x *OtlpExport) GetOtlpHttpExporterUrlPath() string {
+	if x != nil && x.OtlpHttpExporterUrlPath != nil {
+		return *x.OtlpHttpExporterUrlPath
+	}
+	return ""
+}
+
+func (x *OtlpExport) GetOtlpEndpointInsecure() bool {
+	if x != nil && x.OtlpEndpointInsecure != nil {
+		return *x.OtlpEndpointInsecure
+	}
+	return false
 }
 
 func (x *OtlpExport) GetOtlpMetricsPrefix() string {
@@ -953,12 +980,18 @@ var File_config_proto protoreflect.FileDescriptor
 
 const file_config_proto_rawDesc = "" +
 	"\n" +
-	"\fconfig.proto\x12\astroppy\x1a\fcommon.proto\x1a\x10descriptor.proto\x1a\x1bgen/validate/validate.proto\x1a\x1egoogle/protobuf/duration.proto\"\xa3\x01\n" +
+	"\fconfig.proto\x12\astroppy\x1a\fcommon.proto\x1a\x10descriptor.proto\x1a\x1bgen/validate/validate.proto\x1a\x1egoogle/protobuf/duration.proto\"\xa6\x03\n" +
 	"\n" +
 	"OtlpExport\x121\n" +
-	"\x12otlp_grpc_endpoint\x18\x01 \x01(\tH\x00R\x10otlpGrpcEndpoint\x88\x01\x01\x123\n" +
-	"\x13otlp_metrics_prefix\x18\x02 \x01(\tH\x01R\x11otlpMetricsPrefix\x88\x01\x01B\x15\n" +
-	"\x13_otlp_grpc_endpointB\x16\n" +
+	"\x12otlp_grpc_endpoint\x18\x01 \x01(\tH\x00R\x10otlpGrpcEndpoint\x88\x01\x01\x121\n" +
+	"\x12otlp_http_endpoint\x18\x03 \x01(\tH\x01R\x10otlpHttpEndpoint\x88\x01\x01\x12A\n" +
+	"\x1botlp_http_exporter_url_path\x18\x04 \x01(\tH\x02R\x17otlpHttpExporterUrlPath\x88\x01\x01\x129\n" +
+	"\x16otlp_endpoint_insecure\x18\x05 \x01(\bH\x03R\x14otlpEndpointInsecure\x88\x01\x01\x123\n" +
+	"\x13otlp_metrics_prefix\x18\x02 \x01(\tH\x04R\x11otlpMetricsPrefix\x88\x01\x01B\x15\n" +
+	"\x13_otlp_grpc_endpointB\x15\n" +
+	"\x13_otlp_http_endpointB\x1e\n" +
+	"\x1c_otlp_http_exporter_url_pathB\x19\n" +
+	"\x17_otlp_endpoint_insecureB\x16\n" +
 	"\x14_otlp_metrics_prefix\"\x82\x01\n" +
 	"\n" +
 	"GoExecutor\x12#\n" +
